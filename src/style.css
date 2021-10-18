@@ -1,0 +1,84 @@
+/* * { outline: 1px solid red } */
+
+#viewbox {
+  background: #f0f0f0;
+  outline: 2px solid black;
+}
+
+#icon {
+  vertical-align: sub;
+  /*
+  background: #f0f0f0;
+  outline: 2px solid black;
+  */
+}
+
+.body {
+  fill: #ff9f3d;
+  stroke-width: 2;
+  stroke: black;
+}
+
+.label {
+  font: bold 16px Arial;
+  text-anchor: middle;
+  dominant-baseline: central;
+  cursor: default;
+}
+
+.vertex:hover .body {
+  fill: #21e264;
+  opacity: 1;
+}
+
+.edge {
+  fill: #ff9f3d;
+  stroke-width: 3;
+  stroke: black;
+}
+
+.edge:hover {
+  stroke: red;
+}
+
+.button {
+    fill: #007bbf;
+    pointer: cursor;
+}
+
+.button:hover {
+    fill: #0069d9;
+}
+
+.button-text {
+  font-size: 0.8rem;
+  fill: white;
+  text-anchor: middle;
+  cursor: default;
+  pointer-events: none;
+}
+
+ol {
+  counter-reset: item; 
+}
+
+li {
+  display: block;
+}
+
+ul > li:before {
+  margin-left:-40px;
+  padding-right:10px;
+  content: "○"; 
+}
+
+ol > li:before {
+  content: counters(item, "."); 
+  counter-increment: item;
+  padding-right:10px; 
+  margin-left:-40px;
+}
+
+li > ol > li > ol > li {
+  padding-top:10px;
+}
