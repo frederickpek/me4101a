@@ -77,6 +77,7 @@ let deleteVertexListener = (v) => {
   return (e) => {
     e.preventDefault();
 
+    save();
     removeVertexFromVertices(v);
     removeVertexFromSvgVertices(v);
 
@@ -85,14 +86,13 @@ let deleteVertexListener = (v) => {
       removeEdgeFromEdges(edge);
       removeEdgeFromSvgEdges(edge);
     }
-
-    console.log("deleted " + v.id);
   };
 };
 
 let startDrag = (e) => {
   if (e.which != 2) return;
   /* hacky but whatever */
+  save();
   let loc = getSvgLoc(e);
   currVertex = isOverVertex(loc.x, loc.y);
 };
@@ -217,6 +217,11 @@ let clearChild = (p) => {
   }
 };
 
+let resetButton = () => {
+  save();
+  reset();
+};
+
 let reset = () => {
   vertices = [];
   edges = [];
@@ -286,6 +291,7 @@ let dist = (x1, y1, x2, y2) => {
 let deleteEdgeListener = (e) => {
   return (event) => {
     event.preventDefault();
+    save();
     removeEdgeFromEdges(e);
     removeEdgeFromSvgEdges(e);
   };
@@ -367,6 +373,7 @@ let endEdgeUpdate = (v) => {
 };
 
 let deleteCurrEdge = () => {
+  history.pop();
   edges = edges.filter(e => e.id != currEdge);
   let svgEdges = getSvgEdges();
   for (let edge of svgEdges.children) {
@@ -397,6 +404,7 @@ let svgClickListener = (e) => {
   /* if not over vertex, create a vertex */
   if (!v) {
     if (!currEdge) {
+      save();
       addVertex(loc.x, loc.y);
     } else {
       deleteCurrEdge();
@@ -407,14 +415,16 @@ let svgClickListener = (e) => {
 
   /* start edge creation */
   if (!currEdge) {
+    save();
     let edge = addEdge(v);
     currEdge = edge.id;
     return;
   }
 
   /* end edge creation at curr v*/
-  if (v.id == getCurrEgde().v1)
+  if (v.id == getCurrEgde().v1) {
     deleteCurrEdge();
+  }
   else endEdgeUpdate(v);
   currEdge = null;
 };
@@ -426,6 +436,7 @@ let addSvgEventListeners = () => {
 };
 
 let loadSampleGraph1 = () => {
+  save();
   reset();
   
   let H = parseInt(document.getElementById("quantity-1").value);
@@ -450,6 +461,7 @@ let loadSampleGraph1 = () => {
 };
 
 let loadSampleGraph2 = () => {
+  save();
   reset();
   let n = parseInt(document.getElementById("quantity-2").value);
   let r = 100 * (1 + n/30);
@@ -470,6 +482,7 @@ let loadSampleGraph2 = () => {
 };
 
 let loadSampleGraph3 = () => {
+  save();
   reset();
   let r = parseInt(document.getElementById("quantity-3r").value);
   let c = parseInt(document.getElementById("quantity-3c").value);
@@ -500,6 +513,7 @@ let rand = (min, max) => {
 };
 
 let loadRandomGraph = () => {
+  save();
   reset();
 
   let n = parseInt(document.getElementById("quantity-4").value);
@@ -539,7 +553,17 @@ let addDocumentEventListeners = () => {
     e.preventDefault();
     e.stopPropagation();
   });
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.keyCode == 90) {
+      undo();
+    }
+    if (e.ctrlKey && e.keyCode == 89) {
+      redo();
+    }
+  });
 };
+
+/* undo/redo feature */
 
 let getVertex = (id) => {
   for (let vertex of vertices) {
@@ -572,13 +596,56 @@ let getState = () => {
   }
 
   return {
-    "vertices":es,
-    "edges":vl,
+    "vertices":vl,
+    "edges":es,
     "vertexIdSpeficier":vertexIdSpeficier,
     "edgeIdSpeficier":edgeIdSpeficier,
     "currEdge":copyEdge(currEdge),
     "currVertex":copyVertex(currVertex)
   };
+};
+
+let history = [];
+let future = [];
+
+let save = () => {
+  currState = getState();
+  history.push(currState);
+  future = [];
+};
+
+let undo = () => {
+  if (!history.length) {
+    return;
+  }
+  currState = getState();
+  future.push(currState);
+  prevState = history.pop();
+  load(prevState);
+};
+
+let redo = () => {
+  if (!future.length) {
+    return;
+  }
+  currState = getState();
+  history.push(currState);
+  nextState = future.pop();
+  load(nextState);
+};
+
+let load = (state) => {
+  reset();
+  vertices = state["vertices"];
+  edges = state["edges"];
+  vertexIdSpeficier = state["vertexIdSpeficier"];
+  edgeIdSpeficier = state["edgeIdSpeficier"];
+  for (let v of vertices) {
+    addVertexToSvg(v);
+  }
+  for (let e of edges) {
+    addEdgeToSvg(e);
+  }
 };
 
 addDocumentEventListeners();
