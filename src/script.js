@@ -4,7 +4,7 @@ let SVG_URI = "http://www.w3.org/2000/svg";
 let vertices = [];
 let edges = [];
 let vertexIdSpeficier = 0;
-let edgeIdSpeficier = 0;
+let edgeIdSpeficier = 1;
 let svg = document.getElementById("viewbox");
 
 /* edge creation variables */
@@ -226,7 +226,7 @@ let reset = () => {
   vertices = [];
   edges = [];
   vertexIdSpeficier = 0;
-  edgeIdSpeficier = 0;
+  edgeIdSpeficier = 1;
   clearChild(getSvgVertices());
   clearChild(getSvgEdges());
   currEdge = null;
@@ -596,12 +596,12 @@ let getState = () => {
   }
 
   return {
-    "vertices":vl,
-    "edges":es,
-    "vertexIdSpeficier":vertexIdSpeficier,
-    "edgeIdSpeficier":edgeIdSpeficier,
-    "currEdge":copyEdge(currEdge),
-    "currVertex":copyVertex(currVertex)
+    "vertices": vl,
+    "edges": es,
+    "vertexIdSpeficier": vertexIdSpeficier,
+    "edgeIdSpeficier": edgeIdSpeficier,
+    "currEdge": copyEdge(currEdge),
+    "currVertex": copyVertex(currVertex)
   };
 };
 
