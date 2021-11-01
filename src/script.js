@@ -648,6 +648,83 @@ let load = (state) => {
   }
 };
 
+/* graph algos */
+let dfs = () => {
+  let S = parseInt(document.getElementById("quantity-5").value);
+  let n = vertices.length;
+
+  let animationDelays = Array(n).fill([]);
+
+  // let t = 1;
+  // let svgVertices = getSvgVertices();
+  // for (let v of svgVertices.children) {
+  //   let body = getVertexBody(v);
+  //   //body.setAttributeNS(null, 'class', "body");
+  //   body.style.animation  = "glow 1.5s, glow 1.5s";
+  //   body.style.animationDelay  = "" + (t * 1.4) + "s, " + ((n+t) * 1.4) + "s";
+  //   body.style.animationFillMode  = "forwards";
+  //   t++;
+  // }
+
+  /* collect adjList */
+  V = [];
+  for (let vertex of vertices) {
+    V.push(copyVertex(vertex));
+  }
+  V.sort((u, v) => u.id - v.id);
+  // console.log(V);
+
+  /* collect edgelist e(u, v) */
+  let E = Array(n).fill().map(() => Array(n).fill(null));
+  for (let edge of edges) {
+    E[edge.v1][edge.v2] = true;
+    E[edge.v2][edge.v1] = true;
+  }
+  // console.log(E);
+
+  let t = 0;
+  let vis = Array(n).fill(false);
+  let stack = [];
+  stack.push(S);
+  while (stack.length > 0) {
+    let u = stack.pop();
+    if (!vis[u]) {
+      console.log(u);
+      animationDelays[u].push("" + (t * 1.4) + "s");
+      t++;
+      vis[u] = true;
+    }
+    for (let v = n-1; v >= 0; v--) {
+      if (E[u][v]!=null && !vis[v]) {
+        stack.push(v);
+      }
+    }
+  }
+
+  for (let u = 0; u < animationDelays.length; u++) {
+    let delay = "";
+    let animation = "";
+    let c = "";
+    for (let s of animationDelays[u]) {
+      animation += c + "glow 1.5s";
+      delay += c + s;
+      c = ", ";
+    }
+    let svgVertex;
+    let svgVertices = getSvgVertices();
+    for (let R of svgVertices.children) {
+      if (R.getAttributeNS(null, 'id') == u) {
+        svgVertex = R;
+        break;
+      }
+    }
+    let body = getVertexBody(svgVertex);
+    body.style.animation  = animation;
+    body.style.animationDelay  = delay;
+    body.style.animationFillMode  = "forwards";
+  }
+};
+
 addDocumentEventListeners();
 addSvgEventListeners();
 loadSampleGraph1();

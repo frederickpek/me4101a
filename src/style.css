@@ -24,9 +24,23 @@ body {
 }
 
 .body {
-  fill: #ff9f3d;
+  fill: #f0f0f0;
   stroke-width: 2;
   stroke: black;
+}
+
+.vertex .glow {
+  fill: #f0f0f0;
+  stroke-width: 2;
+  stroke: #E74C3C;
+  animation-name: glow;
+  animation-duration: 1.5s;
+}
+
+@keyframes glow {
+  0% {fill: #f0f0f0; stroke: black;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: #E74C3C;}
 }
 
 .label {
@@ -85,10 +99,10 @@ ul > li:before {
 ol > li:before {
   content: counters(item, "."); 
   counter-increment: item;
-  padding-right:10px; 
-  margin-left:-40px;
+  padding-right: 10px; 
+  margin-left: -40px;
 }
 
 li > ol > li > ol > li {
-  padding-top:10px;
+  padding-top: 10px;
 }
