@@ -650,10 +650,14 @@ let load = (state) => {
 
 /* graph algos */
 let dfs = () => {
+  let speed = parseInt(document.getElementById("quantity-6").value);
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
   let animationDelays = Array(n).fill().map(() => Array());
+  let edgeAnimationDelays1 = {};
+  let edgeAnimationDelays2 = {};
+  let edgeAnimationDelays3 = {};
 
   // let t = 1;
   // let svgVertices = getSvgVertices();
@@ -677,58 +681,77 @@ let dfs = () => {
   /* collect edgelist e(u, v) */
   let E = Array(n).fill().map(() => Array(n).fill(null));
   for (let edge of edges) {
-    E[edge.v1][edge.v2] = true;
-    E[edge.v2][edge.v1] = true;
+    E[edge.v1][edge.v2] = edge;
+    E[edge.v2][edge.v1] = edge;
   }
   // console.log(E);
 
   let t = 0;
   let vis = Array(n).fill(false);
-  // let stack = [];
-  // stack.push(S);
-  // while (stack.length > 0) {
-  //   let u = stack.pop();
 
-  //   console.log(u);
-  //   animationDelays[u].push("" + (t * 1.4) + "s");
-  //   t++;
-  //   vis[u] = true;
-    
-  //   for (let v = n-1; v >= 0; v--) {
-  //     if (E[u][v]!=null && !vis[v]) {
-  //       stack.push(v);
-  //     }
-  //   }
-  // }
+  let addEdgeAnimationDelay = (dict, e, t) => {
+    if (dict[e.id] == null) {
+      dict[e.id] = [t];
+    } else {
+      dict[e.id].push(t);
+    }
+  }
+  let mult = (120 - speed * 20) / 100;
+  let incr = 1.4 * mult;
+  let t1 = 0.5 * mult;
+  let t2 = 0.8 * mult;
+  let t3 = 1.5 * mult;
+  let t4 = 1 * mult
 
-  let DFS = (u) => {
+  let DFS = (u, p) => {
     console.log(u);
-    animationDelays[u].push("" + (t * 1.4) + "s");
-    t++;
+    animationDelays[u].push("" + t + "s");
+    t += incr;
     vis[u] = true;
 
     let went = false;
     for (let v = 0; v < n; v++) {
-      if (E[u][v]!=null && !vis[v]) {
-        DFS(v);
+      if (E[u][v] == null) continue;
+      if (!vis[v]) {
+        // light edge u -> v
+        t -= t1;
+        addEdgeAnimationDelay(edgeAnimationDelays1, E[u][v], "" + t + "s");
+        t += incr - t2;
+        DFS(v, u);
+        // light edge v -> u
+        t -= t1;
+        addEdgeAnimationDelay(edgeAnimationDelays2, E[u][v], "" + t + "s");
+        t += incr - t2;
+
         console.log(u);
-        animationDelays[u].push("" + (t * 1.4) + "s");
-        t++;
+        animationDelays[u].push("" + t + "s");
+        t += incr;
+      } else if (v != p) {
+        console.log(u + " -> " + v);
+        t -= t1;
+        addEdgeAnimationDelay(edgeAnimationDelays3, E[u][v], "" + t + "s");
+        t += incr + t1;
       }
     }
   }
 
-  DFS(S);
+  DFS(S, -1000);
 
   for (let u = 0; u < n; u++) {
     let delay = "";
     let animation = "";
     let c = "";
+    let actual = "";
+    let C = "";
     for (let s of animationDelays[u]) {
-      animation += c + "glow 1.5s";
+      actual = animation;
+      animation += c + "glow " + t3 + "s";
       delay += c + s;
+      C = c;
       c = ", ";
     }
+    actual +=  C + "glow2 " + t3 + "s";
+    // can definitely mimic the edge portion here
     let svgVertex = null;
     let svgVertices = getSvgVertices();
     for (let R of svgVertices.children) {
@@ -738,9 +761,41 @@ let dfs = () => {
       }
     }
     let body = getVertexBody(svgVertex);
-    body.style.animation  = animation;
+    body.style.animation  = actual;
     body.style.animationDelay  = delay;
     body.style.animationFillMode  = "forwards";
+  }
+
+  let svgEdges = getSvgEdges();
+  for (let edge of svgEdges.children) {
+    let delay = "";
+    let animation = "";
+    let c = "";
+    let id = edge.getAttributeNS(null, 'id');
+    if (edgeAnimationDelays1[id]) {
+      for (let s of edgeAnimationDelays1[id]) {
+        animation += c + "edgeglow " + t4 + "s";
+        delay += c + s;
+        c = ", ";
+      }
+    }
+    if (edgeAnimationDelays2[id]) {
+      for (let s of edgeAnimationDelays2[id]) {
+        animation += c + "edgeglow2 " + t4 + "s";
+        delay += c + s;
+        c = ", ";
+      }
+    }
+    if (edgeAnimationDelays3[id]) {
+      for (let s of edgeAnimationDelays3[id]) {
+        animation += c + "edgeglow3 " + t4 + "s";
+        delay += c + s;
+        c = ", ";
+      }
+    }
+    edge.style.animation = animation;
+    edge.style.animationDelay = delay;
+    edge.style.animationFillMode = "forwards";
   }
 };
 
