@@ -651,6 +651,7 @@ let load = (state) => {
 /* graph algos */
 let dfs = () => {
   let speed = parseInt(document.getElementById("quantity-6").value);
+  let max = parseInt(document.getElementById("quantity-6").max);
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
@@ -695,8 +696,9 @@ let dfs = () => {
     } else {
       dict[e.id].push(t);
     }
-  }
-  let mult = (120 - speed * 20) / 100;
+  };
+
+  let mult = 1 - (speed-1) * 0.965/9;
   let incr = 1.4 * mult;
   let t1 = 0.5 * mult;
   let t2 = 0.8 * mult;
@@ -733,7 +735,7 @@ let dfs = () => {
         t += incr + t1;
       }
     }
-  }
+  };
 
   DFS(S, -1000);
 
@@ -796,6 +798,22 @@ let dfs = () => {
     edge.style.animation = animation;
     edge.style.animationDelay = delay;
     edge.style.animationFillMode = "forwards";
+  }
+};
+
+let resetGraphAnimations = () => {
+  let svgEdges = getSvgEdges();
+  for (let edge of svgEdges.children) {
+    edge.style.animation = "";
+    edge.style.animationDelay = "";
+    edge.style.animationFillMode = "";
+  }
+  let svgVertices = getSvgVertices();
+  for (let svgVertex of svgVertices.children) {
+    let body = getVertexBody(svgVertex);
+    body.style.animation = "";
+    body.style.animationDelay = "";
+    body.style.animationFillMode = "";
   }
 };
 
