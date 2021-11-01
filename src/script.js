@@ -537,7 +537,7 @@ let loadRandomGraph = () => {
       j = rand(0, c-1);
     } 
     A[i][j] = true;
-    vertices.push(addVertex(xmin + i * dx, ymin + j * dy));
+    addVertex(xmin + i * dx, ymin + j * dy);
   }
 
   for (let i = 0; i < vertices.length; i++) {
@@ -653,7 +653,7 @@ let dfs = () => {
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
-  let animationDelays = Array(n).fill([]);
+  let animationDelays = Array(n).fill().map(() => Array());
 
   // let t = 1;
   // let svgVertices = getSvgVertices();
@@ -684,24 +684,43 @@ let dfs = () => {
 
   let t = 0;
   let vis = Array(n).fill(false);
-  let stack = [];
-  stack.push(S);
-  while (stack.length > 0) {
-    let u = stack.pop();
-    if (!vis[u]) {
-      console.log(u);
-      animationDelays[u].push("" + (t * 1.4) + "s");
-      t++;
-      vis[u] = true;
-    }
-    for (let v = n-1; v >= 0; v--) {
+  // let stack = [];
+  // stack.push(S);
+  // while (stack.length > 0) {
+  //   let u = stack.pop();
+
+  //   console.log(u);
+  //   animationDelays[u].push("" + (t * 1.4) + "s");
+  //   t++;
+  //   vis[u] = true;
+    
+  //   for (let v = n-1; v >= 0; v--) {
+  //     if (E[u][v]!=null && !vis[v]) {
+  //       stack.push(v);
+  //     }
+  //   }
+  // }
+
+  let DFS = (u) => {
+    console.log(u);
+    animationDelays[u].push("" + (t * 1.4) + "s");
+    t++;
+    vis[u] = true;
+
+    let went = false;
+    for (let v = 0; v < n; v++) {
       if (E[u][v]!=null && !vis[v]) {
-        stack.push(v);
+        DFS(v);
+        console.log(u);
+        animationDelays[u].push("" + (t * 1.4) + "s");
+        t++;
       }
     }
   }
 
-  for (let u = 0; u < animationDelays.length; u++) {
+  DFS(S);
+
+  for (let u = 0; u < n; u++) {
     let delay = "";
     let animation = "";
     let c = "";
@@ -710,7 +729,7 @@ let dfs = () => {
       delay += c + s;
       c = ", ";
     }
-    let svgVertex;
+    let svgVertex = null;
     let svgVertices = getSvgVertices();
     for (let R of svgVertices.children) {
       if (R.getAttributeNS(null, 'id') == u) {

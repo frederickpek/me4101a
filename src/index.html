@@ -49,12 +49,6 @@
       <label for="quantity">Random Graph with N number of Vertices, N:</label>
       <input type="number" id="quantity-4" name="quantity" min="1" max="10" value="5" style="width: 30px;" oninput="loadRandomGraph()">
     </div>
-    <div>
-      <button type="button" onclick="dfs()">Run</button>
-      <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
-      <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
-    </div>
-
 
     <ol>
       <li><strong>Features</strong>
@@ -121,6 +115,11 @@
       <g class="edges"></g>
       <g class="vertices"></g>
     </svg>
+    <div>
+      <button type="button" onclick="dfs()">Run</button>
+      <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
+      <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
+    </div>
   </div>
 </div>
 
