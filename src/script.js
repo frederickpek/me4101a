@@ -650,8 +650,6 @@ let load = (state) => {
 
 /* graph algos */
 let dfs = () => {
-  let speed = parseInt(document.getElementById("quantity-6").value);
-  let max = parseInt(document.getElementById("quantity-6").max);
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
@@ -659,17 +657,6 @@ let dfs = () => {
   let edgeAnimationDelays1 = {};
   let edgeAnimationDelays2 = {};
   let edgeAnimationDelays3 = {};
-
-  // let t = 1;
-  // let svgVertices = getSvgVertices();
-  // for (let v of svgVertices.children) {
-  //   let body = getVertexBody(v);
-  //   //body.setAttributeNS(null, 'class', "body");
-  //   body.style.animation  = "glow 1.5s, glow 1.5s";
-  //   body.style.animationDelay  = "" + (t * 1.4) + "s, " + ((n+t) * 1.4) + "s";
-  //   body.style.animationFillMode  = "forwards";
-  //   t++;
-  // }
 
   /* collect adjList */
   V = [];
@@ -815,6 +802,16 @@ let resetGraphAnimations = () => {
     body.style.animationDelay = "";
     body.style.animationFillMode = "";
   }
+};
+
+let applications = [];
+
+let left = () => {
+
+};
+
+let right = () => {
+
 };
 
 addDocumentEventListeners();
