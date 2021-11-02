@@ -649,7 +649,7 @@ let load = (state) => {
 };
 
 /* graph algos */
-let dfs = () => {
+let notdfs = () => {
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
@@ -804,14 +804,143 @@ let resetGraphAnimations = () => {
   }
 };
 
-let applications = [];
+let order = [];
 
-let left = () => {
+let dfs = () => {
+  let S = parseInt(document.getElementById("quantity-5").value);
+  let n = vertices.length;
 
+  let E = Array(n).fill().map(() => Array(n).fill(null));
+  for (let edge of edges) {
+    E[edge.v1][edge.v2] = edge;
+    E[edge.v2][edge.v1] = edge;
+  }
+
+  let vis = Array(n).fill(false);
+
+  let DFS = (u, p) => {
+    vis[u] = true;
+    for (let v = 0; v < n; v++) {
+      if (E[u][v] == null) continue;
+      if (!vis[v]) {
+        // light edge u -> v, then light v
+        order.push({
+          E: {
+            edge: getSvgEdges().children[E[u][v].id - 1],
+            keyframe: "edgeglow"
+          },
+          V: {
+            vertex: getSvgVertices().children[v],
+            keyframe: "glow"
+          }
+        });
+        DFS(v, u);
+        // light edge v -> u, then light u
+        order.push({
+          E: {
+            edge: getSvgEdges().children[E[u][v].id - 1],
+            keyframe: "edgeglow2"
+          },
+          V: {
+            vertex: getSvgVertices().children[u],
+            keyframe: "glow1"
+          }
+        });
+
+      } else if (v != p) {
+        // light edge u -> v fails
+      }
+    }
+    order[order.length - 1].V.keyframe = "glow2";
+  };
+
+  // light S
+  order.push({
+    E: null,
+    V: {
+      vertex: getSvgVertices().children[S],
+      keyframe: "glow"
+    }
+  });
+  DFS(S, -1);
 };
 
-let right = () => {
+let applyKeyFrameVertex = (svgVertex, keyframe, delay) => {
+  let body = getVertexBody(svgVertex);
+  body.style.animation  = keyframe  + " " + 1.5 + "s";
+  body.style.animationDelay = delay + "s";
+  body.style.animationFillMode = "forwards";
+};
 
+let applyKeyFrameEdge = (svgEdge, keyframe, delay) => {
+  svgEdge.style.animation  = keyframe  + " " + 1 + "s";
+  svgEdge.style.animationDelay = delay + "s";
+  svgEdge.style.animationFillMode = "forwards";
+};
+
+
+let curr = 0;
+
+let left = () => {
+  curr--;
+  let state = order[curr];
+  if (state.E) {
+    if (isGreen[state.E.edge.id]) {
+       state.E.edge.style.stroke = "green";
+       state.E.edge.style.strokeWidth = "4";
+    } else state.E.edge.style.stroke = "red";
+    applyKeyFrameEdge(state.E.edge, state.E.keyframe + "-reversed", 1.4 - 0.5);
+    isGreen[state.E.edge.id] = false;
+  }
+  if (state.V) {
+    if (prevIsRed[state.V.vertex.id])
+      applyKeyFrameVertex(state.V.vertex, state.V.keyframe + "-reversed-endred", 0);
+    else applyKeyFrameVertex(state.V.vertex, state.V.keyframe + "-reversed", 0);
+    if (isRed[state.V.vertex.id]) {
+      prevIsRed[state.V.vertex.id] = isRed[state.V.vertex.id];
+      isRed[state.V.vertex.id] = false;
+    }
+  }
+
+  // let svgVertices = getSvgVertices();
+  // let vertex = svgVertices.children[1];
+  // applyKeyFrameVertex(vertex, "glow-reversed");
+
+  // let svgEdges = getSvgEdges();
+  // let edge = svgEdges.children[0];
+  // edge.style.stroke = "red";
+  // applyKeyFrameEdge(edge, "edgeglow-reversed", 1.4 - 0.5);
+};
+
+let isGreen = Array(1000).fill(false);
+let prevIsRed = Array(1000).fill(false);
+let isRed = Array(1000).fill(false);
+
+let right = () => {
+  let state = order[curr];
+  if (state.E) {
+    applyKeyFrameEdge(state.E.edge, state.E.keyframe, 0);
+    if (state.E.keyframe == "edgeglow2") {
+      isGreen[state.E.edge.id] = true;
+    }
+  }
+  if (state.V) {
+    if (isRed[state.V.vertex.id]) getVertexBody(state.V.vertex).style.stroke = "#E74C3C";
+    applyKeyFrameVertex(state.V.vertex, state.V.keyframe, 0.5);
+    if (!isRed[state.V.vertex.id]) {
+      prevIsRed[state.V.vertex.id] = isRed[state.V.vertex.id];
+      isRed[state.V.vertex.id] = true;
+    }
+  }
+  curr++;
+
+  // let svgVertices = getSvgVertices();
+  // let vertex = svgVertices.children[1];
+  // applyKeyFrameVertex(vertex, "glow", 0.5);
+
+  // let svgEdges = getSvgEdges();
+  // let edge = svgEdges.children[0];
+  // applyKeyFrameEdge(edge, "edgeglow");
 };
 
 addDocumentEventListeners();

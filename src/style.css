@@ -29,18 +29,6 @@ body {
   stroke: black;
 }
 
-@keyframes glow {
-  0% {fill: #f0f0f0; stroke: black;}
-  50% {fill: #E74C3C; stroke: #E74C3C;}
-  100% {fill: #f0f0f0; stroke: #E74C3C;}
-}
-
-@keyframes glow2 {
-  0% {fill: #f0f0f0; stroke: #E74C3C;}
-  50% {fill: #E74C3C; stroke: #E74C3C;}
-  100% {fill: #f0f0f0; stroke: green; stroke-width: 4;}
-}
-
 .label {
   font: bold 16px Arial;
   text-anchor: middle;
@@ -105,16 +93,82 @@ li > ol > li > ol > li {
   padding-top: 10px;
 }
 
+@keyframes glow {
+  0% {fill: #f0f0f0; stroke: black;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: #E74C3C;}
+}
+
+@keyframes glow1 {
+  0% {fill: #f0f0f0; stroke: black;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: #E74C3C;}
+}
+
+@keyframes glow-reversed {
+  0% {fill: #f0f0f0; stroke: #E74C3C;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: black;}
+}
+
+@keyframes glow-reversed-endred {
+  0% {fill: #f0f0f0; stroke: #E74C3C;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: #E74C3C;}
+}
+
+@keyframes glow1-reversed {
+  0% {fill: #f0f0f0; stroke: #E74C3C;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: black;}
+}
+
+@keyframes glow1-reversed-endred {
+  0% {fill: #f0f0f0; stroke: #3E74CC;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: #E74C3C;}
+}
+
+@keyframes glow2 {
+  0% {fill: #f0f0f0; stroke: red;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: green; stroke-width: 4;}
+}
+
+@keyframes glow2-reversed {
+  0% {fill: #f0f0f0; stroke: green; stroke-width: 4;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: black;}
+}
+
+@keyframes glow2-reversed-endred {
+  0% {fill: #f0f0f0; stroke: green; stroke-width: 4;}
+  50% {fill: #E74C3C; stroke: #E74C3C;}
+  100% {fill: #f0f0f0; stroke: red;}
+}
+
 @keyframes edgeglow {
   0% {stroke: black; stroke-width: 3;}
   50% {stroke: red; stroke-width: 6;}
   100% {stroke: red; stroke-width: 3;}
 }
 
+@keyframes edgeglow-reversed {
+  0% {stroke: red; stroke-width: 3;}
+  50% {stroke: red; stroke-width: 6;}
+  100% {stroke: black; stroke-width: 3;}
+}
+
 @keyframes edgeglow2 {
-  0% {stroke: black; stroke-width: 3;}
+  0% {stroke: red; stroke-width: 3;}
   50% {stroke: red; stroke-width: 6;}
   100% {stroke: green; stroke-width: 4;}
+}
+
+@keyframes edgeglow2-reversed {
+  0% {stroke: green; stroke-width: 4;}
+  50% {stroke: red; stroke-width: 6;}
+  100% {stroke: red; stroke-width: 3;}
 }
 
 @keyframes edgeglow3 {
