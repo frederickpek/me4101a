@@ -649,27 +649,20 @@ let load = (state) => {
 };
 
 /* graph algos */
+
 let dfs = () => {
   let speed = parseInt(document.getElementById("quantity-6").value);
   let max = parseInt(document.getElementById("quantity-6").max);
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
-  let animationDelays = Array(n).fill().map(() => Array());
+  let animationDelays = {};
+  for (let vertex of vertices) {
+    animationDelays[vertex.id] = [];
+  }
   let edgeAnimationDelays1 = {};
   let edgeAnimationDelays2 = {};
   let edgeAnimationDelays3 = {};
-
-  // let t = 1;
-  // let svgVertices = getSvgVertices();
-  // for (let v of svgVertices.children) {
-  //   let body = getVertexBody(v);
-  //   //body.setAttributeNS(null, 'class', "body");
-  //   body.style.animation  = "glow 1.5s, glow 1.5s";
-  //   body.style.animationDelay  = "" + (t * 1.4) + "s, " + ((n+t) * 1.4) + "s";
-  //   body.style.animationFillMode  = "forwards";
-  //   t++;
-  // }
 
   /* collect adjList */
   V = [];
@@ -680,7 +673,10 @@ let dfs = () => {
   // console.log(V);
 
   /* collect edgelist e(u, v) */
-  let E = Array(n).fill().map(() => Array(n).fill(null));
+  let E = {};
+  for (let vertex of vertices) {
+    E[vertex.id] = {};
+  }
   for (let edge of edges) {
     E[edge.v1][edge.v2] = edge;
     E[edge.v2][edge.v1] = edge;
@@ -688,7 +684,10 @@ let dfs = () => {
   // console.log(E);
 
   let t = 0;
-  let vis = Array(n).fill(false);
+  let vis = {};
+  for (let vertex of vertices) {
+    vis[vertex.id] = false;
+  }
 
   let addEdgeAnimationDelay = (dict, e, t) => {
     if (dict[e.id] == null) {
@@ -711,8 +710,8 @@ let dfs = () => {
     t += incr;
     vis[u] = true;
 
-    let went = false;
-    for (let v = 0; v < n; v++) {
+    for (let vertex of vertices) {
+      let v = vertex.id;
       if (E[u][v] == null) continue;
       if (!vis[v]) {
         // light edge u -> v
@@ -739,13 +738,14 @@ let dfs = () => {
 
   DFS(S, -1000);
 
-  for (let u = 0; u < n; u++) {
+  for (let vertex of vertices) {
+    if (!vis[vertex.id]) continue;
     let delay = "";
     let animation = "";
     let c = "";
     let actual = "";
     let C = "";
-    for (let s of animationDelays[u]) {
+    for (let s of animationDelays[vertex.id]) {
       actual = animation;
       animation += c + "glow " + t3 + "s";
       delay += c + s;
@@ -757,7 +757,7 @@ let dfs = () => {
     let svgVertex = null;
     let svgVertices = getSvgVertices();
     for (let R of svgVertices.children) {
-      if (R.getAttributeNS(null, 'id') == u) {
+      if (R.getAttributeNS(null, 'id') == vertex.id) {
         svgVertex = R;
         break;
       }
