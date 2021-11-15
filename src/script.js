@@ -664,15 +664,6 @@ let dfs = () => {
   let edgeAnimationDelays2 = {};
   let edgeAnimationDelays3 = {};
 
-  /* collect adjList */
-  V = [];
-  for (let vertex of vertices) {
-    V.push(copyVertex(vertex));
-  }
-  V.sort((u, v) => u.id - v.id);
-  // console.log(V);
-
-  /* collect edgelist e(u, v) */
   let E = {};
   for (let vertex of vertices) {
     E[vertex.id] = {};
@@ -764,6 +755,167 @@ let dfs = () => {
     }
     let body = getVertexBody(svgVertex);
     body.style.animation  = actual;
+    body.style.animationDelay  = delay;
+    body.style.animationFillMode  = "forwards";
+  }
+
+  let svgEdges = getSvgEdges();
+  for (let edge of svgEdges.children) {
+    let delay = "";
+    let animation = "";
+    let c = "";
+    let id = edge.getAttributeNS(null, 'id');
+    if (edgeAnimationDelays1[id]) {
+      for (let s of edgeAnimationDelays1[id]) {
+        animation += c + "edgeglow " + t4 + "s";
+        delay += c + s;
+        c = ", ";
+      }
+    }
+    if (edgeAnimationDelays2[id]) {
+      for (let s of edgeAnimationDelays2[id]) {
+        animation += c + "edgeglow2 " + t4 + "s";
+        delay += c + s;
+        c = ", ";
+      }
+    }
+    if (edgeAnimationDelays3[id]) {
+      for (let s of edgeAnimationDelays3[id]) {
+        animation += c + "edgeglow3 " + t4 + "s";
+        delay += c + s;
+        c = ", ";
+      }
+    }
+    edge.style.animation = animation;
+    edge.style.animationDelay = delay;
+    edge.style.animationFillMode = "forwards";
+  }
+};
+
+let bfs = () => {
+  let speed = parseInt(document.getElementById("quantity-8").value);
+  let max = parseInt(document.getElementById("quantity-8").max);
+  let S = parseInt(document.getElementById("quantity-7").value);
+  let n = vertices.length;
+
+  let animationDelays = {};
+  let animationDelays2 = {};
+  for (let vertex of vertices) {
+    animationDelays[vertex.id] = [];
+    animationDelays2[vertex.id] = [];
+  }
+  let edgeAnimationDelays1 = {};
+  let edgeAnimationDelays2 = {};
+  let edgeAnimationDelays3 = {};
+
+  let E = {};
+  for (let vertex of vertices) {
+    E[vertex.id] = {};
+  }
+  for (let edge of edges) {
+    E[edge.v1][edge.v2] = edge;
+    E[edge.v2][edge.v1] = edge;
+  }
+
+  let t = 0;
+  let vis = {};
+  for (let vertex of vertices) {
+    vis[vertex.id] = false;
+  }
+
+  let addEdgeAnimationDelay = (dict, e, t) => {
+    if (dict[e.id] == null) {
+      dict[e.id] = [t];
+    } else {
+      dict[e.id].push(t);
+    }
+  };
+
+  let mult = 1 - (speed-1) * 0.965/9;
+  let incr = 1.4 * mult;
+  let t1 = 0.5 * mult;
+  let t2 = 0.8 * mult;
+  let t3 = 1.5 * mult;
+  let t4 = 1 * mult
+
+  // BFS
+  let selectedE = {};
+
+  let q = [S];
+  vis[S] = true;
+  animationDelays[S].push("" + t + "s");
+  t += incr;
+  animationDelays2[S].push("" + t + "s");
+  t += incr;
+
+  while (q.length) {
+
+    let q2 = [];
+    let doneV = [];
+    let doneE = [];
+    while (q.length) {
+      let u = q.shift();
+      console.log(u);
+      for (let vertex of vertices) {
+        let v = vertex.id;
+        if (!E[u][v]) continue;
+        if (selectedE[E[u][v].id]) continue;
+        if (vis[v]) {
+          t -= t1;
+          addEdgeAnimationDelay(edgeAnimationDelays3, E[u][v], "" + t + "s");
+          t += incr; // - t2;
+          continue;
+        }
+        t -= t1;
+        addEdgeAnimationDelay(edgeAnimationDelays1, E[u][v], "" + t + "s");
+        t += incr - t2;
+
+        animationDelays[v].push("" + t + "s");
+        t += incr;
+        
+        doneV.push(v);
+        doneE.push(E[u][v]);
+        selectedE[E[u][v].id] = true;
+        vis[v] = true;
+        q2.push(v);
+      }
+    }
+
+    q = q2;
+    //t -= t1;
+    for (let e of doneE) {
+      addEdgeAnimationDelay(edgeAnimationDelays2, e, "" + t + "s");
+    }
+    t += incr - t2;
+    for (let v of doneV) {
+      animationDelays2[v].push("" + t + "s");
+    }
+    t += incr;
+
+  }
+
+  let svgVertices = getSvgVertices();
+  for (let vertex of svgVertices.children) {
+    if (!vis[vertex.id]) continue;
+    let delay = "";
+    let animation = "";
+    let c = "";
+    for (let s of animationDelays[vertex.id]) {
+      actual = animation;
+      animation += c + "glow " + t3 + "s";
+      delay += c + s;
+      c = ", ";
+    }
+
+    for (let s of animationDelays2[vertex.id]) {
+      actual = animation;
+      animation += c + "glow2 " + t3 + "s";
+      delay += c + s;
+      c = ", ";
+    }
+
+    let body = getVertexBody(vertex);
+    body.style.animation  = animation;
     body.style.animationDelay  = delay;
     body.style.animationFillMode  = "forwards";
   }
