@@ -547,6 +547,47 @@ let loadRandomGraph = () => {
   }
 };
 
+let loadTestGraph = () => {
+  save();
+  reset();
+
+  let v0 = addVertex(300, 200);
+  let v1 = addVertex(218.42105102539062, 133.71710205078125);
+  let v2 = addVertex(300, 30);
+  let v3 = addVertex(315.2631530761719, 268.4539489746094);
+  let v4 = addVertex(130, 194.7697296142578);
+  let v5 = addVertex(422.631591796875, 274.7697448730469);
+  let v6 = addVertex(138.42105102539062, 278.9802551269531);
+  let v7 = addVertex(60.52631759643555, 302.1381530761719);
+  let v8 = addVertex(102.63157653808594, 26.348684310913086);
+  let v9 = addVertex(172.1052703857422, 72.66447448730469);
+  let v10 = addVertex(498.4210510253906, 188.45394897460938);
+  let v11 = addVertex(567.8947143554688, 205.29605102539062);
+  let v12 = addVertex(414.2105407714844, 26.348684310913086);
+  let v13 = addVertex(220.5263214111328, 257.9276428222656);
+  let v14 = addVertex(376.3157958984375, 354.7697448730469);
+  let v15 = addVertex(360, 116);
+  
+  addEdge2v(v0, v1);
+  addEdge2v(v1, v4);
+  addEdge2v(v4, v7);
+  addEdge2v(v4, v6);
+  addEdge2v(v4, v13);
+  addEdge2v(v13, v1);
+  addEdge2v(v0, v15);
+  addEdge2v(v15, v2);
+  addEdge2v(v2, v8);
+  addEdge2v(v2, v9);
+  addEdge2v(v15, v12);
+  addEdge2v(v2, v12);
+  addEdge2v(v0, v3);
+  addEdge2v(v3, v5);
+  addEdge2v(v5, v10);
+  addEdge2v(v5, v11);
+  addEdge2v(v3, v14);
+  addEdge2v(v14, v5);
+};
+
 let addDocumentEventListeners = () => {
   document.addEventListener("mousedown", (e) => {
     if (e.button != 1) return;
@@ -971,4 +1012,5 @@ let resetGraphAnimations = () => {
 
 addDocumentEventListeners();
 addSvgEventListeners();
-loadSampleGraph1();
+// loadSampleGraph1();
+loadTestGraph();
