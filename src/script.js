@@ -181,6 +181,15 @@ let addVertexToSvg = (v) => {
   body.setAttributeNS(null, 'cy', v.y);
   body.setAttributeNS(null, 'r', VERTEX_RADIUS);
   
+  /** testing animations in-place of css
+  let animation = document.createElementNS(SVG_URI, 'animate');
+  animation.setAttributeNS(null, 'attributeName', "fill");
+  animation.setAttributeNS(null, 'values', "red;white;red");
+  animation.setAttributeNS(null, 'dur', "2s");
+  animation.setAttributeNS(null, 'repeatCount', "indefinite");
+  body.appendChild(animation);
+  */
+
   let label = document.createElementNS(SVG_URI, 'text');
   label.setAttributeNS(null, 'class', "label");
   label.setAttributeNS(null, 'x', v.x);
@@ -542,7 +551,7 @@ let loadRandomGraph = () => {
 
   for (let i = 0; i < vertices.length; i++) {
     for (let j = i + 1; j < vertices.length; j++) {
-      if (Math.random() < 1/n) addEdge2v(vertices[i], vertices[j]);
+      if (Math.random() < 2/n) addEdge2v(vertices[i], vertices[j]);
     }
   }
 };
@@ -1008,6 +1017,43 @@ let resetGraphAnimations = () => {
     body.style.animationDelay = "";
     body.style.animationFillMode = "";
   }
+};
+
+let states = [];
+let index = 0;
+
+let dfsClickable = () => {
+  // let svgVertices = getSvgVertices();
+  // for (let vertex of svgVertices.children) {
+  //   let body = getVertexBody(vertex);
+  //   let animation = document.createElementNS(SVG_URI, 'animate');
+  //   animation.setAttributeNS(null, 'attributeName', "fill");
+  //   animation.setAttributeNS(null, 'values', "white;red");
+  //   animation.setAttributeNS(null, 'dur', "5s");
+  //   animation.setAttributeNS(null, 'repeatCount', "1");
+  //   body.appendChild(animation);
+  // }
+
+  for (let vertex of svgVertices.children) {
+    
+  }
+};
+
+let left = () => {
+
+};
+
+let right = () => {
+  let svgVertices = getSvgVertices();
+  let vertex = svgVertices.children[index];
+  let body = getVertexBody(vertex);
+  let animation = document.createElementNS(SVG_URI, 'animate');
+  animation.setAttributeNS(null, 'attributeName', "fill");
+  animation.setAttributeNS(null, 'values', "red;white;red");
+  animation.setAttributeNS(null, 'dur', "5s");
+  animation.setAttributeNS(null, 'repeatCount', "indefinite");
+  body.appendChild(animation);
+  index++;
 };
 
 addDocumentEventListeners();
