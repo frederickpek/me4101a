@@ -23,7 +23,7 @@ body {
   */
 }
 
-.body {
+.logo-body {
   fill: #f0f0f0;
   stroke-width: 2;
   stroke: black;
@@ -53,10 +53,9 @@ body {
   opacity: 1;
 }
 
-.edge {
-  fill: #ff9f3d;
-  stroke-width: 3;
+.logo-edge {
   stroke: black;
+  stroke-width: 2;
 }
 
 .edge:hover {
@@ -121,4 +120,8 @@ li > ol > li > ol > li {
   0% {stroke: black; stroke-width: 3;}
   50% {stroke: red; stroke-width: 6;}
   100% {stroke: #e6e6e6; stroke-width: 2;}
+}
+
+.progress {
+  width: 80%;
 }

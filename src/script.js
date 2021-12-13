@@ -1,4 +1,4 @@
-let VERTEX_RADIUS = 20;
+let VERTEX_RADIUS = 15;
 let SVG_URI = "http://www.w3.org/2000/svg";
 
 let vertices = [];
@@ -180,15 +180,9 @@ let addVertexToSvg = (v) => {
   body.setAttributeNS(null, 'cx', v.x);
   body.setAttributeNS(null, 'cy', v.y);
   body.setAttributeNS(null, 'r', VERTEX_RADIUS);
-  
-  /** testing animations in-place of css
-  let animation = document.createElementNS(SVG_URI, 'animate');
-  animation.setAttributeNS(null, 'attributeName', "fill");
-  animation.setAttributeNS(null, 'values', "red;white;red");
-  animation.setAttributeNS(null, 'dur', "2s");
-  animation.setAttributeNS(null, 'repeatCount', "indefinite");
-  body.appendChild(animation);
-  */
+  body.setAttributeNS(null, 'fill', WHITE);
+  body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
+  body.setAttributeNS(null, 'stroke', BLACK);
 
   let label = document.createElementNS(SVG_URI, 'text');
   label.setAttributeNS(null, 'class', "label");
@@ -204,13 +198,6 @@ let addVertexToSvg = (v) => {
   svgVertices.appendChild(group);
 
   addVertexEventListeners(group);
-
-  /* Sample vertex template
-    <g class="vertex" id="vertex-0">
-      <circle class="body" cx="100" cy="100" r="20"/>
-      <text class="label" x="100" y="100"> 0 </text>
-    </g>
-  */
 };
 
 let addVertex = (x, y) => {
@@ -314,6 +301,8 @@ let addEdgeToSvg = (e) => {
   edge.setAttributeNS(null, 'y1', e.y1);
   edge.setAttributeNS(null, 'x2', e.x2);
   edge.setAttributeNS(null, 'y2', e.y2);
+  edge.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
+  edge.setAttributeNS(null, 'stroke', BLACK);
 
   let svgEdges = getSvgEdges();
   svgEdges.appendChild(edge);
@@ -700,19 +689,27 @@ let load = (state) => {
 
 /* graph algos */
 
+let resetTraversal = () => {
+  clearChild(getSvgVertices());
+  clearChild(getSvgEdges());
+
+  for (let vertex of vertices) {
+    addVertexToSvg(vertex);
+  }
+  for (let edge of edges) {
+    addEdgeToSvg(edge);
+  }
+
+  resetAnimations();
+};
+
 let dfs = () => {
+  resetTraversal();
+
   let speed = parseInt(document.getElementById("quantity-6").value);
   let max = parseInt(document.getElementById("quantity-6").max);
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
-
-  let animationDelays = {};
-  for (let vertex of vertices) {
-    animationDelays[vertex.id] = [];
-  }
-  let edgeAnimationDelays1 = {};
-  let edgeAnimationDelays2 = {};
-  let edgeAnimationDelays3 = {};
 
   let E = {};
   for (let vertex of vertices) {
@@ -722,7 +719,6 @@ let dfs = () => {
     E[edge.v1][edge.v2] = edge;
     E[edge.v2][edge.v1] = edge;
   }
-  // console.log(E);
 
   let t = 0;
   let vis = {};
@@ -730,116 +726,42 @@ let dfs = () => {
     vis[vertex.id] = false;
   }
 
-  let addEdgeAnimationDelay = (dict, e, t) => {
-    if (dict[e.id] == null) {
-      dict[e.id] = [t];
-    } else {
-      dict[e.id].push(t);
-    }
-  };
+  let body = {};
+  let svgVertices = getSvgVertices();
+  for (let svgVertex of svgVertices.children) {
+    body[svgVertex.id] = getVertexBody(svgVertex);
+  }
 
-  let mult = 1 - (speed-1) * 0.965/9;
-  let incr = 1.4 * mult;
-  let t1 = 0.5 * mult;
-  let t2 = 0.8 * mult;
-  let t3 = 1.5 * mult;
-  let t4 = 1 * mult
+  let edge = {};
+  let svgEdges = getSvgEdges();
+  for (let svgEdge of svgEdges.children) {
+    edge[svgEdge.id] = svgEdge;
+  }
 
   let DFS = (u, p) => {
-    console.log(u);
-    animationDelays[u].push("" + t + "s");
-    t += incr;
     vis[u] = true;
-
+    addVertexAnimation1(body[u], 300);
     for (let vertex of vertices) {
       let v = vertex.id;
       if (E[u][v] == null) continue;
       if (!vis[v]) {
-        // light edge u -> v
-        t -= t1;
-        addEdgeAnimationDelay(edgeAnimationDelays1, E[u][v], "" + t + "s");
-        t += incr - t2;
+        addEdgeAnimation1(edge[E[u][v].id], 300);
         DFS(v, u);
-        // light edge v -> u
-        t -= t1;
-        addEdgeAnimationDelay(edgeAnimationDelays2, E[u][v], "" + t + "s");
-        t += incr - t2;
-
-        console.log(u);
-        animationDelays[u].push("" + t + "s");
-        t += incr;
-      } else if (v != p) {
-        console.log(u + " -> " + v);
-        t -= t1;
-        addEdgeAnimationDelay(edgeAnimationDelays3, E[u][v], "" + t + "s");
-        t += incr + t1;
+        addEdgeAnimation3(edge[E[u][v].id], 300);
+        addVertexAnimation3(body[u], 300);
+      } else if (v!=p) {
+        addEdgeAnimation2(edge[E[u][v].id], 300);
       }
     }
+    addVertexAnimation2(body[u], 300);
   };
 
-  DFS(S, -1000);
+  seqReverse.push(null);
+  DFS(S, -1);
+  seqForward.push(null);
 
-  for (let vertex of vertices) {
-    if (!vis[vertex.id]) continue;
-    let delay = "";
-    let animation = "";
-    let c = "";
-    let actual = "";
-    let C = "";
-    for (let s of animationDelays[vertex.id]) {
-      actual = animation;
-      animation += c + "glow " + t3 + "s";
-      delay += c + s;
-      C = c;
-      c = ", ";
-    }
-    actual +=  C + "glow2 " + t3 + "s";
-    // can definitely mimic the edge portion here
-    let svgVertex = null;
-    let svgVertices = getSvgVertices();
-    for (let R of svgVertices.children) {
-      if (R.getAttributeNS(null, 'id') == vertex.id) {
-        svgVertex = R;
-        break;
-      }
-    }
-    let body = getVertexBody(svgVertex);
-    body.style.animation  = actual;
-    body.style.animationDelay  = delay;
-    body.style.animationFillMode  = "forwards";
-  }
-
-  let svgEdges = getSvgEdges();
-  for (let edge of svgEdges.children) {
-    let delay = "";
-    let animation = "";
-    let c = "";
-    let id = edge.getAttributeNS(null, 'id');
-    if (edgeAnimationDelays1[id]) {
-      for (let s of edgeAnimationDelays1[id]) {
-        animation += c + "edgeglow " + t4 + "s";
-        delay += c + s;
-        c = ", ";
-      }
-    }
-    if (edgeAnimationDelays2[id]) {
-      for (let s of edgeAnimationDelays2[id]) {
-        animation += c + "edgeglow2 " + t4 + "s";
-        delay += c + s;
-        c = ", ";
-      }
-    }
-    if (edgeAnimationDelays3[id]) {
-      for (let s of edgeAnimationDelays3[id]) {
-        animation += c + "edgeglow3 " + t4 + "s";
-        delay += c + s;
-        c = ", ";
-      }
-    }
-    edge.style.animation = animation;
-    edge.style.animationDelay = delay;
-    edge.style.animationFillMode = "forwards";
-  }
+  progress.max = seqForward.length-1;
+  play_pause();
 };
 
 let bfs = () => {
@@ -1003,60 +925,6 @@ let bfs = () => {
   }
 };
 
-let resetGraphAnimations = () => {
-  let svgEdges = getSvgEdges();
-  for (let edge of svgEdges.children) {
-    edge.style.animation = "";
-    edge.style.animationDelay = "";
-    edge.style.animationFillMode = "";
-  }
-  let svgVertices = getSvgVertices();
-  for (let svgVertex of svgVertices.children) {
-    let body = getVertexBody(svgVertex);
-    body.style.animation = "";
-    body.style.animationDelay = "";
-    body.style.animationFillMode = "";
-  }
-};
-
-let states = [];
-let index = 0;
-
-let dfsClickable = () => {
-  // let svgVertices = getSvgVertices();
-  // for (let vertex of svgVertices.children) {
-  //   let body = getVertexBody(vertex);
-  //   let animation = document.createElementNS(SVG_URI, 'animate');
-  //   animation.setAttributeNS(null, 'attributeName', "fill");
-  //   animation.setAttributeNS(null, 'values', "white;red");
-  //   animation.setAttributeNS(null, 'dur', "5s");
-  //   animation.setAttributeNS(null, 'repeatCount', "1");
-  //   body.appendChild(animation);
-  // }
-
-  for (let vertex of svgVertices.children) {
-    
-  }
-};
-
-let left = () => {
-
-};
-
-let right = () => {
-  let svgVertices = getSvgVertices();
-  let vertex = svgVertices.children[index];
-  let body = getVertexBody(vertex);
-  let animation = document.createElementNS(SVG_URI, 'animate');
-  animation.setAttributeNS(null, 'attributeName', "fill");
-  animation.setAttributeNS(null, 'values', "red;white;red");
-  animation.setAttributeNS(null, 'dur', "5s");
-  animation.setAttributeNS(null, 'repeatCount', "indefinite");
-  body.appendChild(animation);
-  index++;
-};
-
 addDocumentEventListeners();
 addSvgEventListeners();
-// loadSampleGraph1();
 loadTestGraph();
