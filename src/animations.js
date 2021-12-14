@@ -121,7 +121,23 @@ let resetAnimations = () => {
   seqForward = [];
   seqReverse = [];
   pause();
+  setButtonOpacities();
 }
+
+let setButtonOpacities = () => {
+  let Fb = document.querySelector('.forward');
+  let Bb = document.querySelector('.reverse');
+  let Sb = document.querySelector('.jump-to-start');
+  let Eb = document.querySelector('.jump-to-end');
+  let Pb = document.querySelector('.play-pause');
+
+  Fb.style.opacity = isPlaying || !seqForward.length ? "0.4" : "1.0";
+  Bb.style.opacity = isPlaying || !seqForward.length ? "0.4" : "1.0";
+  Sb.style.opacity = isPlaying || !seqForward.length ? "0.4" : "1.0";
+  Eb.style.opacity = isPlaying || !seqForward.length ? "0.4" : "1.0";
+  Pb.style.opacity = !seqForward.length ? "0.4" : "1.0";
+  progress.style.opacity = isPlaying || !seqForward.length ? "0.7" : "1.0";
+};
 
 let isPlaying = false;
 let play_pause = () => {
@@ -135,6 +151,7 @@ let play_pause = () => {
     playPauseButton.innerHTML = "<i class=\"material-icons\">pause</i>";
   }
   isPlaying = !isPlaying;
+  setButtonOpacities();
 };
 
 let seqIndex = 0;
@@ -203,11 +220,13 @@ let seek = (index) => {
 };
 
 let jumpToStart = () => {
+  if (player) return;
   progress.value = progress.min;
   seek(progress.value);
 };
 
 let jumpToEnd = () => {
+  if (player) return;
   progress.value = progress.max;
   seek(progress.value);
 };
@@ -215,3 +234,13 @@ let jumpToEnd = () => {
 progress.addEventListener('input', function() {
   seek(progress.value);
 });
+
+let reverseButton = () => {
+  if (player) return;
+  reverse();
+};
+
+let forwardButton = () => {
+  if (player) return;
+  forward();
+};

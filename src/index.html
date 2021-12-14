@@ -25,61 +25,67 @@
 
 <div style="width:100%;">
   <div style="float:left; width:35%;">
-    <div>
-      <button type="button" onclick="resetButton()">Reset</button>
-    </div>
-    <button type="button" onclick="loadTestGraph()">Load Test Graph</button>
-    <div>
-      <button type="button" onclick="loadSampleGraph1()">Load</button>
-      <label for="quantity">Complete Binary Tree of height H:</label>
-      <input type="number" id="quantity-1" name="quantity" min="0" max="4" value="3" width="100" style="width: 30px;"oninput="loadSampleGraph1()">
-    </div>
-    <div>
-      <button type="button" onclick="loadSampleGraph2()">Load</button>
-      <label for="quantity">Complete graph with N number of Vertices, N:</label>
-      <input type="number" id="quantity-2" name="quantity" min="1" max="20" value="7" style="width: 30px;" oninput="loadSampleGraph2()">
-    </div>
-    <div>
-      <button type="button" onclick="loadSampleGraph3()">Load</button>
-      <label for="quantity">Graph in a grid format with R rows and C cols, R x C:</label>
-      <input type="number" id="quantity-3r" name="quantity" min="1" max="7" value="4" style="width: 30px;" oninput="loadSampleGraph3()">
-      <input type="number" id="quantity-3c" name="quantity" min="1" max="7" value="4" style="width: 30px;" oninput="loadSampleGraph3()">
-    </div>
-    <div>
-      <button type="button" onclick="loadRandomGraph()">Load</button>
-      <label for="quantity">Random Graph with N number of Vertices, N:</label>
-      <input type="number" id="quantity-4" name="quantity" min="1" max="10" value="5" style="width: 30px;" oninput="loadRandomGraph()">
-    </div>
+    <fieldset>
+      <div>
+        <button type="button" onclick="resetButton()">Reset</button>
+      </div>
+      <button type="button" onclick="loadTestGraph()">Load Test Graph</button>
+      <div>
+        <button type="button" onclick="loadSampleGraph1()">Load</button>
+        <label for="quantity">Complete Binary Tree of height H:</label>
+        <input type="number" id="quantity-1" name="quantity" min="0" max="4" value="3" width="100" style="width: 30px;"oninput="loadSampleGraph1()">
+      </div>
+      <div>
+        <button type="button" onclick="loadSampleGraph2()">Load</button>
+        <label for="quantity">Complete graph with N number of Vertices, N:</label>
+        <input type="number" id="quantity-2" name="quantity" min="1" max="20" value="7" style="width: 30px;" oninput="loadSampleGraph2()">
+      </div>
+      <div>
+        <button type="button" onclick="loadSampleGraph3()">Load</button>
+        <label for="quantity">Graph in a grid format with R rows and C cols, R x C:</label>
+        <input type="number" id="quantity-3r" name="quantity" min="1" max="7" value="4" style="width: 30px;" oninput="loadSampleGraph3()">
+        <input type="number" id="quantity-3c" name="quantity" min="1" max="7" value="4" style="width: 30px;" oninput="loadSampleGraph3()">
+      </div>
+      <div>
+        <button type="button" onclick="loadRandomGraph()">Load</button>
+        <label for="quantity">Random Graph with N number of Vertices, N:</label>
+        <input type="number" id="quantity-4" name="quantity" min="1" max="10" value="5" style="width: 30px;" oninput="loadRandomGraph()">
+      </div>
+    </fieldset>
     <br>
     <br>
-    <div>
-      <button type="button" onclick="dfs()">Run</button>
-      <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
-      <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
-    </div>
-    <div>
-      <button type="button" onclick="bfs()">Run</button>
-      <label for="quantity">Run <i style="background-color:#b0b0ff;">Breadth-First Search</i> on source Vertex, S:</label>
-      <input type="number" id="quantity-7" name="quantity" value="0" style="width: 30px;">
-    </div>
-    <br>
-    <br>
-    <br>
-    <input class="progress" type="range" value="0" min="0" max="0"></input><br>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <button type="button" onclick="jumpToStart()"><i class="material-icons">skip_previous</i></button>
-    <button class="reverse" type="button" onclick="reverse()"><i class="material-icons">fast_rewind</i></button>
-    <button class="play-pause" type="button" onclick="play_pause()"><i class="material-icons">play_arrow</i></button>
-    <button class="forward" type="button" onclick="forward()"><i class="material-icons">fast_forward</i></button>
-    <button type="button" onclick="jumpToEnd()"><i class="material-icons">skip_next</i></button>
+    <fieldset>
+      <div>
+        <button type="button" onclick="dfs()">Run</button>
+        <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
+        <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
+      </div>
+      <div>
+        <button type="button" onclick="bfs()">Run</button>
+        <label for="quantity">Run <i style="background-color:#b0b0ff;">Breadth-First Search</i> on source Vertex, S:</label>
+        <input type="number" id="quantity-7" name="quantity" value="0" style="width: 30px;">
+      </div>
+      <br>
+      <br>
+      <br>
+      <input class="progress" type="range" value="0" min="0" max="0"></input><br>
+      <div style="display: flex; justify-content: center;">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <button class="jump-to-start" type="button" onclick="jumpToStart()"><i class="material-icons">skip_previous</i></button>
+        <button class="reverse" type="button" onclick="reverseButton()"><i class="material-icons">fast_rewind</i></button>
+        <button class="play-pause" type="button" onclick="play_pause()"><i class="material-icons">play_arrow</i></button>
+        <button class="forward" type="button" onclick="forwardButton()"><i class="material-icons">fast_forward</i></button>
+        <button class="jump-to-end" type="button" onclick="jumpToEnd()"><i class="material-icons">skip_next</i></button>
+      </div>
+    </fieldset>
   </div>
-</div>
 
-<div style="float:left; width:60%;">
-  <svg id="viewbox" viewBox="0 0 600 400">
-    <g class="edges"></g>
-    <g class="vertices"></g>
-  </svg>
+  <div style="float:left; width:60%; margin-left: 1%;">
+    <svg id="viewbox" viewBox="0 0 600 400">
+      <g class="edges"></g>
+      <g class="vertices"></g>
+    </svg>
+  </div>
 </div>
 
 <!-- partial -->
