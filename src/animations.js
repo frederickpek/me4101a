@@ -5,8 +5,8 @@ let RED = '#db4437';
 let WHITE = '#f0f0f0';
 let FADE = '#e6e6e6';
 
-let STROKE_WIDTH_1 = 2;
-let STROKE_WIDTH_2 = 5;
+let STROKE_WIDTH_1 = 1.5;
+let STROKE_WIDTH_2 = 4;
 
 let progress = document.querySelector('.progress');
 
@@ -14,14 +14,14 @@ let VERTEX_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK,
 let VERTEX_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED, fill: RED }; };
 let VERTEX_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED, fill: WHITE }; };
 let VERTEX_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, fill: GREEN }; };
-let VERTEX_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_1+1, stroke: GREEN, fill: WHITE }; };
+let VERTEX_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_1+0.5, stroke: GREEN, fill: WHITE }; };
 
 let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK }; };
 let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED }; };
 let EDGE_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED }; };
 let EDGE_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: FADE }; };
 let EDGE_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN }; };
-let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_1+1, stroke: GREEN }; };
+let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_1+0.5, stroke: GREEN }; };
 
 let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
   let animation = anime.timeline({
@@ -64,6 +64,7 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
         update: function () {
           targetSvg.setAttributeNS(null, 'stroke', initialObj.stroke);
           targetSvg.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
+          targetSvg.markerEnd.setAttributeNS(null, 'fill', initialObj.stroke);
         }
       });
   }

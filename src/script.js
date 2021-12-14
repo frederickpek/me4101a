@@ -1,4 +1,4 @@
-let VERTEX_RADIUS = 15;
+let VERTEX_RADIUS = 14;
 let SVG_URI = "http://www.w3.org/2000/svg";
 
 let vertices = [];
@@ -6,12 +6,17 @@ let edges = [];
 let vertexIdSpeficier = 0;
 let edgeIdSpeficier = 1;
 let svg = document.getElementById("viewbox");
+let bidirectedEdgeCheckbox = document.querySelector('.bidirected-edge');
 
 /* edge creation variables */
 let currEdge = null;
 
 /* dragging variables */
 let currVertex = null;
+
+let isBidirectedEdge = () => {
+  return bidirectedEdgeCheckbox.checked;
+};
 
 let getSvgLoc = (e) => {
   let pt = svg.createSVGPoint();
@@ -257,7 +262,7 @@ let getVertexLabel = (v) => {
   return null;
 }
 
-let Edge = (v, id) => {
+let Edge = (v, id, isBidirected) => {
   return {
     id: id,
     v1: v.id,
@@ -266,10 +271,11 @@ let Edge = (v, id) => {
     y1: v.y,
     x2: v.x,
     y2: v.y,
+    isBidirected: isBidirected,
   };
 };
 
-let Edge2v = (v1, v2, id) => {
+let Edge2v = (v1, v2, id, isBidirected) => {
   return {
     id: id,
     v1: v1.id,
@@ -278,6 +284,7 @@ let Edge2v = (v1, v2, id) => {
     y1: v1.y,
     x2: v2.x,
     y2: v2.y,
+    isBidirected: isBidirected,
   };
 };
 
@@ -304,6 +311,10 @@ let addEdgeToSvg = (e) => {
   edge.setAttributeNS(null, 'y2', e.y2);
   edge.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
   edge.setAttributeNS(null, 'stroke', BLACK);
+  edge.setAttributeNS(null, 'marker-end', "url(#endarrowhead)");
+  if (e.isBidirected) {
+    edge.setAttributeNS(null, 'marker-start', "url(#startarrowhead)");
+  }
 
   let svgEdges = getSvgEdges();
   svgEdges.appendChild(edge);
@@ -311,15 +322,16 @@ let addEdgeToSvg = (e) => {
   edge.addEventListener('contextmenu', deleteEdgeListener(e));
 };
 
-let addEdge = (v) => {
-  let edge = Edge(v, edgeIdSpeficier++);
+let addEdge = (v, isBidirected) => {
+  let edge = Edge(v, edgeIdSpeficier++, isBidirected);
   edges.push(edge);
   addEdgeToSvg(edge);
   return edge;
 };
 
-let addEdge2v = (v1, v2) => {
-  let edge = Edge2v(v1, v2, edgeIdSpeficier++);
+let addEdge2v = (v1, v2, isBidirected) => {
+  // strictly dev use only
+  let edge = Edge2v(v1, v2, edgeIdSpeficier++, isBidirected);
   edges.push(edge);
   addEdgeToSvg(edge);
   return edge;
@@ -369,6 +381,61 @@ let endEdgeUpdate = (v) => {
   edge.x2 = v.x;
   edge.y2 = v.y;
   updateEdgeSvg(edge);
+
+  let existing = null;
+  let complement = null;
+
+  for (let e of edges) {
+    if (e.id == edge.id) continue;
+    if (e.v1 == edge.v1 && e.v2 == edge.v2) {
+      existing = e;
+    }
+    if (e.v2 == edge.v1 && e.v1 == edge.v2) {
+      complement = e;
+    }
+  }
+
+  // new edge entirely
+  if (!existing && !complement) return;
+
+  // all prevous edges inferior
+  if (edge.isBidirected) {
+    if (existing) {
+      removeEdgeFromEdges(existing);
+      removeEdgeFromSvgEdges(existing);
+    }
+    if (complement) {
+      removeEdgeFromEdges(complement);
+      removeEdgeFromSvgEdges(complement);
+    }
+    return;
+  }
+
+  // remove current edge
+  if ((existing && existing.isBidirected)
+    || (complement && complement.isBidirected)) {
+    removeEdgeFromEdges(edge);
+    removeEdgeFromSvgEdges(edge);
+    return;
+  }
+
+  // duplicate
+  if (existing) {
+    removeEdgeFromEdges(edge);
+    removeEdgeFromSvgEdges(edge);
+    return;
+  }
+
+  // remove curr and make complement, bidirected
+  if (complement) {
+    removeEdgeFromEdges(edge);
+    removeEdgeFromSvgEdges(edge);
+
+    complement.isBidirected = true;
+    removeEdgeFromSvgEdges(complement);
+    addEdgeToSvg(complement);
+    return;
+  }
 };
 
 let deleteCurrEdge = () => {
@@ -415,7 +482,7 @@ let svgClickListener = (e) => {
   /* start edge creation */
   if (!currEdge) {
     save();
-    let edge = addEdge(v);
+    let edge = addEdge(v, isBidirectedEdge());
     currEdge = edge.id;
     return;
   }
@@ -454,8 +521,8 @@ let loadSampleGraph1 = () => {
   }
   
   for (let i = 0; i < n/2 - 1; i++) {
-    addEdge2v(vertices[i], vertices[2*i + 1]);
-    addEdge2v(vertices[i], vertices[2*i + 2]);
+    addEdge2v(vertices[i], vertices[2*i + 1], true);
+    addEdge2v(vertices[i], vertices[2*i + 2], true);
   }
 };
 
@@ -475,7 +542,7 @@ let loadSampleGraph2 = () => {
   
   for (let i = 0; i < vertices.length; i++) {
     for (let j = i + 1; j < vertices.length; j++) {
-      addEdge2v(vertices[i], vertices[j]);
+      addEdge2v(vertices[i], vertices[j], true);
     }
   }
 };
@@ -501,8 +568,8 @@ let loadSampleGraph3 = () => {
   for (let i = 0; i < r; i++) {
     for (let j = 0; j < c; j++) {
       let u = i * c + j;
-      if (j < c - 1) addEdge2v(vertices[u], vertices[u + 1]);
-      if (i < r - 1) addEdge2v(vertices[u], vertices[u + c]);
+      if (j < c - 1) addEdge2v(vertices[u], vertices[u + 1], true);
+      if (i < r - 1) addEdge2v(vertices[u], vertices[u + c], true);
     }
   }
 };
@@ -541,7 +608,7 @@ let loadRandomGraph = () => {
 
   for (let i = 0; i < vertices.length; i++) {
     for (let j = i + 1; j < vertices.length; j++) {
-      if (Math.random() < 2/n) addEdge2v(vertices[i], vertices[j]);
+      if (Math.random() < 2/n) addEdge2v(vertices[i], vertices[j], true);
     }
   }
 };
@@ -567,24 +634,24 @@ let loadTestGraph = () => {
   let v14 = addVertex(376.3157958984375, 354.7697448730469);
   let v15 = addVertex(360, 116);
   
-  addEdge2v(v0, v1);
-  addEdge2v(v1, v4);
-  addEdge2v(v4, v7);
-  addEdge2v(v4, v6);
-  addEdge2v(v4, v13);
-  addEdge2v(v13, v1);
-  addEdge2v(v0, v15);
-  addEdge2v(v15, v2);
-  addEdge2v(v2, v8);
-  addEdge2v(v2, v9);
-  addEdge2v(v15, v12);
-  addEdge2v(v2, v12);
-  addEdge2v(v0, v3);
-  addEdge2v(v3, v5);
-  addEdge2v(v5, v10);
-  addEdge2v(v5, v11);
-  addEdge2v(v3, v14);
-  addEdge2v(v14, v5);
+  addEdge2v(v0, v1, true);
+  addEdge2v(v1, v4, true);
+  addEdge2v(v4, v7, true);
+  addEdge2v(v4, v6, true);
+  addEdge2v(v4, v13, true);
+  addEdge2v(v13, v1, true);
+  addEdge2v(v0, v15, true);
+  addEdge2v(v15, v2, true);
+  addEdge2v(v2, v8, true);
+  addEdge2v(v2, v9, true);
+  addEdge2v(v15, v12, true);
+  addEdge2v(v2, v12, true);
+  addEdge2v(v0, v3, true);
+  addEdge2v(v3, v5, true);
+  addEdge2v(v5, v10, true);
+  addEdge2v(v5, v11, true);
+  addEdge2v(v3, v14, true);
+  addEdge2v(v14, v5, true);
 };
 
 let addDocumentEventListeners = () => {
@@ -716,7 +783,9 @@ let dfs = () => {
   }
   for (let edge of edges) {
     E[edge.v1][edge.v2] = edge;
-    E[edge.v2][edge.v1] = edge;
+    if (edge.isBidirected) {
+      E[edge.v2][edge.v1] = edge;
+    }
   }
 
   let vis = {};
@@ -765,7 +834,7 @@ let dfs = () => {
 let bfs = () => {
   resetTraversal();
 
-  let S = parseInt(document.getElementById("quantity-5").value);
+  let S = parseInt(document.getElementById("quantity-7").value);
   let n = vertices.length;
 
   let E = {};
@@ -774,7 +843,9 @@ let bfs = () => {
   }
   for (let edge of edges) {
     E[edge.v1][edge.v2] = edge;
-    E[edge.v2][edge.v1] = edge;
+    if (edge.isBidirected) {
+      E[edge.v2][edge.v1] = edge;
+    }
   }
 
   let vis = {};
@@ -831,8 +902,6 @@ let bfs = () => {
   progress.max = seqForward.length-1;
   play_pause();
 };
-
-
 
 addDocumentEventListeners();
 addSvgEventListeners();

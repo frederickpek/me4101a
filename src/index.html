@@ -8,7 +8,7 @@
 
 <body>
 <!-- partial:index.partial.html -->
-<h1 class="title"> Graph Drawing Tool
+<h1 class="title"> Graph Algorithms Visualisation Tool
   <svg id="icon" width="65" height="45">
     <line class="logo-edge" x1="10" y1="35" x2="25" y2="20"/>
     <line class="logo-edge" x1="25" y1="20" x2="40" y2="30"/>
@@ -24,7 +24,7 @@
 <br>
 
 <div style="width:100%;">
-  <div style="float:left; width:35%;">
+  <div style="float:left; width:35%; margin-left: 1%;">
     <fieldset>
       <div>
         <button type="button" onclick="resetButton()">Reset</button>
@@ -80,8 +80,23 @@
     </fieldset>
   </div>
 
-  <div style="float:left; width:60%; margin-left: 1%;">
+  <div style="float:left; width:60%; margin-left: 2%;">
+    <label class="switch">
+      <input class="bidirected-edge" type="checkbox" checked>
+      <span class="slider round"></span>
+    </label>
+    <div style="display: inline-block;">Bidirected Edges</div>
     <svg id="viewbox" viewBox="0 0 600 400">
+      <defs>
+        <marker id="endarrowhead" markerWidth="10" markerHeight="5"
+            refX="23" refY="2.5" orient="auto" markerUnits="userSpaceOnUse">
+          <polygon points="0 0, 10 2.5, 0 5"/>
+        </marker>
+        <marker id="startarrowhead" markerWidth="10" markerHeight="5"
+            refX="-13" refY="2.5" orient="auto" markerUnits="userSpaceOnUse">
+          <polygon points="10 0, 0 2.5, 10 5"/>
+        </marker>
+      </defs>
       <g class="edges"></g>
       <g class="vertices"></g>
     </svg>
