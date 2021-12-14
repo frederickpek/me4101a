@@ -10,13 +10,13 @@
 <!-- partial:index.partial.html -->
 <h1 class="title"> Graph Drawing Tool
   <svg id="icon" width="65" height="45">
-    <line class="edge" x1="10" y1="35" x2="25" y2="20"/>
-    <line class="edge" x1="25" y1="20" x2="40" y2="30"/>
-    <line class="edge" x1="40" y1="30" x2="55" y2="15"/>
-    <circle class="body" cx="10" cy="35" r="5"/>
-    <circle class="body" cx="25" cy="20" r="5"/>
-    <circle class="body" cx="40" cy="30" r="5"/>
-    <circle class="body" cx="55" cy="15" r="5"/>
+    <line class="logo-edge" x1="10" y1="35" x2="25" y2="20"/>
+    <line class="logo-edge" x1="25" y1="20" x2="40" y2="30"/>
+    <line class="logo-edge" x1="40" y1="30" x2="55" y2="15"/>
+    <circle class="logo-body" cx="10" cy="35" r="5"/>
+    <circle class="logo-body" cx="25" cy="20" r="5"/>
+    <circle class="logo-body" cx="40" cy="30" r="5"/>
+    <circle class="logo-body" cx="55" cy="15" r="5"/>
   </svg>
 </h1>
 
@@ -28,6 +28,7 @@
     <div>
       <button type="button" onclick="resetButton()">Reset</button>
     </div>
+    <button type="button" onclick="loadTestGraph()">Load Test Graph</button>
     <div>
       <button type="button" onclick="loadSampleGraph1()">Load</button>
       <label for="quantity">Complete Binary Tree of height H:</label>
@@ -49,91 +50,41 @@
       <label for="quantity">Random Graph with N number of Vertices, N:</label>
       <input type="number" id="quantity-4" name="quantity" min="1" max="10" value="5" style="width: 30px;" oninput="loadRandomGraph()">
     </div>
-
-    <ol>
-      <li><strong>Features</strong>
-        <ol>
-          <li>Left-click to create vertices.</li>
-          <li>Click on vertices to create edges, click on another vertex to end the edge creation.</li>
-          <li>Rick-click to delete vertices and edges.</li>
-          <li>Use the scoller buttom to click, drag and drop vertices.</li>
-          <li><i style="background-color:#c0ffc8;">Press Ctrl + Z to undo.</i></li>
-          <li><i style="background-color:#c0ffc8;">Press Ctrl + Y to redo.</i></li>
-        </ol>
-      </li>
-      <br>
-
-      <li><strong>Pending</strong>
-        <ol>
-          <li>Edges: directed edges, edge weights.</li>
-          <li>Auto spread graphs out to minimize overlapping elements.</li>
-          <li>Seperate mode to apply graph algorithms on drawn graph.
-            <ol>
-              <li>Graph Traversal</li>
-                <ul>
-                  <li>DFS</li>
-                  <li>BFS</li>
-                  <li>Topological Sort, Khan's</li>
-                  <li>SCC, Kosaraju's</li>
-                  <li>Binary Tree, in/post/pre-order</li>
-                </ul>
-              <li>Minimum Spanning Tree
-                <ul>
-                  <li>Prim's</li>
-                  <li>Kruskal's</li>
-                </ul>
-              </li>
-              <li>Single Sourse Shortest Path
-                <ul>
-                  <li>Bellman–Ford</li>
-                  <li>Dijkstra's</li>
-                  <li>A* ?</li>
-                </ul>
-              </li>
-              <li>All Pairs Shortest Path
-                <ul>
-                  <li>Floyd Warshall</li>
-                </ul>
-              </li>
-              <li>Max Flow*
-                <ul>
-                  <li>Ford-Fulkerson</li>
-                  <li>Edmonds-Karp</li>
-                  <li>Dinic's</li>
-                </ul>
-              </li>
-            </ol>
-          </li>
-        </ol>
-      </li>
-    </ol>
-    <br><em>More coming soon...</em>
-  </div>
-
-  <div style="float:left; width:60%;">
-    <svg id="viewbox" viewBox="0 0 600 400">
-      <g class="edges"></g>
-      <g class="vertices"></g>
-    </svg>
+    <br>
+    <br>
     <div>
       <button type="button" onclick="dfs()">Run</button>
       <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
       <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
-      <label for="quantity">Speed: </label>
-      <input type="number" id="quantity-6" name="quantity" min="1" max="10" value="3" style="width: 25px;">
     </div>
     <div>
       <button type="button" onclick="bfs()">Run</button>
       <label for="quantity">Run <i style="background-color:#b0b0ff;">Breadth-First Search</i> on source Vertex, S:</label>
       <input type="number" id="quantity-7" name="quantity" value="0" style="width: 30px;">
-      <label for="quantity">Speed: </label>
-      <input type="number" id="quantity-8" name="quantity" min="1" max="10" value="3" style="width: 25px;">
     </div>
-     <button type="button" onclick="resetGraphAnimations()">Reset the DFS</button>
+    <br>
+    <br>
+    <br>
+    <input class="progress" type="range" value="0" min="0" max="0"></input><br>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <button type="button" onclick="jumpToStart()"><i class="material-icons">skip_previous</i></button>
+    <button class="reverse" type="button" onclick="reverse()"><i class="material-icons">fast_rewind</i></button>
+    <button class="play-pause" type="button" onclick="play_pause()"><i class="material-icons">play_arrow</i></button>
+    <button class="forward" type="button" onclick="forward()"><i class="material-icons">fast_forward</i></button>
+    <button type="button" onclick="jumpToEnd()"><i class="material-icons">skip_next</i></button>
   </div>
 </div>
 
+<div style="float:left; width:60%;">
+  <svg id="viewbox" viewBox="0 0 600 400">
+    <g class="edges"></g>
+    <g class="vertices"></g>
+  </svg>
+</div>
+
 <!-- partial -->
+<script src="./anime.min.js"></script>
+<script src="./animations.js"></script>
 <script src="./script.js"></script>
 
 </body>
