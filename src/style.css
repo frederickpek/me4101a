@@ -29,18 +29,6 @@ body {
   stroke: black;
 }
 
-@keyframes glow {
-  0% {fill: #f0f0f0; stroke: black;}
-  50% {fill: #E74C3C; stroke: #E74C3C;}
-  100% {fill: #f0f0f0; stroke: #E74C3C;}
-}
-
-@keyframes glow2 {
-  0% {fill: #f0f0f0; stroke: #E74C3C;}
-  50% {fill: #E74C3C; stroke: #E74C3C;}
-  100% {fill: #f0f0f0; stroke: green; stroke-width: 4;}
-}
-
 .label {
   font: bold 16px Arial;
   text-anchor: middle;
@@ -77,49 +65,6 @@ body {
   text-anchor: middle;
   cursor: default;
   pointer-events: none;
-}
-
-ol {
-  counter-reset: item; 
-}
-
-li {
-  display: block;
-}
-
-ul > li:before {
-  margin-left:-40px;
-  padding-right:10px;
-  content: "○"; 
-}
-
-ol > li:before {
-  content: counters(item, "."); 
-  counter-increment: item;
-  padding-right: 10px; 
-  margin-left: -40px;
-}
-
-li > ol > li > ol > li {
-  padding-top: 10px;
-}
-
-@keyframes edgeglow {
-  0% {stroke: black; stroke-width: 3;}
-  50% {stroke: red; stroke-width: 6;}
-  100% {stroke: red; stroke-width: 3;}
-}
-
-@keyframes edgeglow2 {
-  0% {stroke: black; stroke-width: 3;}
-  50% {stroke: red; stroke-width: 6;}
-  100% {stroke: green; stroke-width: 4;}
-}
-
-@keyframes edgeglow3 {
-  0% {stroke: black; stroke-width: 3;}
-  50% {stroke: red; stroke-width: 6;}
-  100% {stroke: #e6e6e6; stroke-width: 2;}
 }
 
 .progress {

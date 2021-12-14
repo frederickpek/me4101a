@@ -14,14 +14,14 @@ let VERTEX_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK,
 let VERTEX_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED, fill: RED }; };
 let VERTEX_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED, fill: WHITE }; };
 let VERTEX_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, fill: GREEN }; };
-let VERTEX_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: GREEN, fill: WHITE }; };
+let VERTEX_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_1+1, stroke: GREEN, fill: WHITE }; };
 
 let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK }; };
 let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED }; };
 let EDGE_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED }; };
 let EDGE_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: FADE }; };
 let EDGE_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN }; };
-let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: GREEN }; };
+let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_1+1, stroke: GREEN }; };
 
 let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
   let animation = anime.timeline({
@@ -83,7 +83,7 @@ let addVertexAnimation2 = (targetSvg, dur) => {
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(), [VERTEX_OBJ_4(), VERTEX_OBJ_3()], dur));
 }
 
-// normal to red
+// red to red
 let addVertexAnimation3 = (targetSvg, dur) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(), [VERTEX_OBJ_2(), VERTEX_OBJ_3()], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(), [VERTEX_OBJ_2(), VERTEX_OBJ_3()], dur));
@@ -107,6 +107,12 @@ let addEdgeAnimation3 = (targetSvg, dur) => {
   seqReverse.push(generateVertexAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_3()], dur));
 }
 
+// normal to green
+let addEdgeAnimation4 = (targetSvg, dur) => {
+  seqForward.push(generateVertexAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
+  seqReverse.push(generateVertexAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_1()], dur));
+}
+
 let resetAnimations = () => {
   progress.value = 0;
   progress.max = 0;
@@ -119,6 +125,7 @@ let resetAnimations = () => {
 
 let isPlaying = false;
 let play_pause = () => {
+  if (seqForward.length == 0) return;
   let playPauseButton = document.querySelector('.play-pause');
   if (isPlaying) {
     pause();
@@ -140,12 +147,14 @@ let play = () => {
   player = setInterval(function(){
     forward();
   }, clickInterval);
+  progress.style.pointerEvents = "none";
 }
 
 let pause = () => {
   if (!player) return;
   clearInterval(player);
   player = null;
+  progress.style.pointerEvents = "auto";
 }
 
 let reverse = () => {
