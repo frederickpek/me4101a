@@ -64,7 +64,6 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
         update: function () {
           targetSvg.setAttributeNS(null, 'stroke', initialObj.stroke);
           targetSvg.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
-          targetSvg.markerEnd.setAttributeNS(null, 'fill', initialObj.stroke);
         }
       });
   }

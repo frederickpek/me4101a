@@ -42,6 +42,10 @@ let getSvgEdges = () => {
   return null;
 };
 
+let getSvgEdgeWeights = () => {
+  return document.querySelector('.edge-weights');
+};
+
 let removeVertexFromVertices = (v) => {
   vertices = vertices.filter(u => u.id != v.id);
 };
@@ -78,11 +82,21 @@ let removeEdgeFromSvgEdges = (e) => {
   }
 };
 
+let removeEdgeWeightFromSvgEdgeWeights = (e) => {
+  let svgEdgesWeights = getSvgEdgeWeights();
+  for (let child of svgEdgesWeights.children) {
+    if (child.getAttributeNS(null, 'id') == e.id) {
+      svgEdgesWeights.removeChild(child);
+    }
+  }
+};
+
 let deleteVertexListener = (v) => {
   return (e) => {
     e.preventDefault();
 
     save();
+    resetTraversal();
     removeVertexFromVertices(v);
     removeVertexFromSvgVertices(v);
 
@@ -90,6 +104,7 @@ let deleteVertexListener = (v) => {
     for (let edge of edgeList) {
       removeEdgeFromEdges(edge);
       removeEdgeFromSvgEdges(edge);
+      removeEdgeWeightFromSvgEdgeWeights(edge);
     }
   };
 };
@@ -118,31 +133,20 @@ let updateVertexLoc = (v, x, y) => {
 
       /* lasy refactor */
       let svgEdges = getSvgEdges();
+      let svgEdgeWeights = getSvgEdgeWeights();
 
       edgeList = edges.filter(e => e.v1 == v.id);
       for (let edge of edgeList) {
         edge.x1 = x;
         edge.y1 = y;
-        for (let child of svgEdges.children) {
-          if (child.getAttributeNS(null, 'id') == edge.id) {
-            child.setAttributeNS(null, 'x1', x);
-            child.setAttributeNS(null, 'y1', y);
-            break;
-          }
-        }
+        updateEdgeSvg(edge);
       }
 
       edgeList = edges.filter(e => e.v2 == v.id);
       for (let edge of edgeList) {
         edge.x2 = x;
         edge.y2 = y;
-        for (let child of svgEdges.children) {
-          if (child.getAttributeNS(null, 'id') == edge.id) {
-            child.setAttributeNS(null, 'x2', x);
-            child.setAttributeNS(null, 'y2', y);
-            break;
-          }
-        }
+        updateEdgeSvg(edge);
       }
 
     }
@@ -228,6 +232,7 @@ let reset = () => {
   edges = [];
   vertexIdSpeficier = 0;
   edgeIdSpeficier = 1;
+  clearChild(getSvgEdgeWeights());
   clearChild(getSvgVertices());
   clearChild(getSvgEdges());
   currEdge = null;
@@ -296,9 +301,43 @@ let deleteEdgeListener = (e) => {
   return (event) => {
     event.preventDefault();
     save();
+    resetTraversal();
     removeEdgeFromEdges(e);
     removeEdgeFromSvgEdges(e);
+    removeEdgeWeightFromSvgEdgeWeights(e);
   };
+};
+
+let addEdgeWeightToSvg = (e) => {
+  let x1 = (e.x1>e.x2) ? e.x1 : e.x2;
+  let y1 = (e.x1>e.x2) ? e.y1 : e.y2;
+  let x2 = (e.x1>e.x2) ? e.x2 : e.x1;
+  let y2 = (e.x1>e.x2) ? e.y2 : e.y1;
+  
+  let H = 3;
+  let dy = Math.abs(y1 - y2);
+  let dx = Math.abs(x1 - x2);
+  let beta = Math.atan(dy/dx);
+  let d = Math.sqrt(dy*dy + dx*dx);
+  let x = (x1 + x2) / 2;
+  let y = (y1 + y2) / 2;
+  let Yw = y - H*Math.cos(beta);
+  let Xw = (y1>y2) ? x + H*Math.sin(beta) : x - H*Math.sin(beta);
+  let rotate = (y1>y2) ? beta*180/3.14 : -beta*180/3.14;
+
+  if (Number.isNaN(Xw)) Xw = -100;
+  if (Number.isNaN(Yw)) Yw = -100;
+ if (Number.isNaN(rotate)) rotate = 0;
+
+  let edgeweight = document.createElementNS(SVG_URI, 'text');
+  edgeweight.setAttributeNS(null, 'class', "edgeweight");
+  edgeweight.setAttributeNS(null, 'id', e.id);
+  edgeweight.setAttributeNS(null, 'transform', "translate("+Xw+","+Yw+") rotate("+rotate+")");
+  edgeweight.setAttributeNS(null,'font-size', '10');
+  edgeweight.innerHTML = "";// e.id;
+
+  let svgEdgesWeights = getSvgEdgeWeights();
+  svgEdgesWeights.appendChild(edgeweight);
 };
 
 let addEdgeToSvg = (e) => {
@@ -318,6 +357,8 @@ let addEdgeToSvg = (e) => {
 
   let svgEdges = getSvgEdges();
   svgEdges.appendChild(edge);
+
+  addEdgeWeightToSvg(e);
 
   edge.addEventListener('contextmenu', deleteEdgeListener(e));
 };
@@ -352,8 +393,12 @@ let updateEdgeSvg = (e) => {
   for (let child of svgEdges.children) {
     if (child.getAttributeNS(null, 'id') == e.id) {
       /* however many attributes required */
+      child.setAttributeNS(null, 'x1', e.x1);
+      child.setAttributeNS(null, 'y1', e.y1);
       child.setAttributeNS(null, 'x2', e.x2);
       child.setAttributeNS(null, 'y2', e.y2);
+      removeEdgeWeightFromSvgEdgeWeights(e);
+      addEdgeWeightToSvg(e);
       break;
     }
   }
@@ -375,6 +420,7 @@ let updateCurrEdge = (x, y) => {
   updateEdgeSvg(edge);
 };
 
+// can afford to tidy here
 let endEdgeUpdate = (v) => {
   let edge = getCurrEgde();
   edge.v2 = v.id;
@@ -403,10 +449,12 @@ let endEdgeUpdate = (v) => {
     if (existing) {
       removeEdgeFromEdges(existing);
       removeEdgeFromSvgEdges(existing);
+      removeEdgeWeightFromSvgEdgeWeights(existing);
     }
     if (complement) {
       removeEdgeFromEdges(complement);
       removeEdgeFromSvgEdges(complement);
+      removeEdgeWeightFromSvgEdgeWeights(complement);
     }
     return;
   }
@@ -416,6 +464,7 @@ let endEdgeUpdate = (v) => {
     || (complement && complement.isBidirected)) {
     removeEdgeFromEdges(edge);
     removeEdgeFromSvgEdges(edge);
+    removeEdgeWeightFromSvgEdgeWeights(edge);
     return;
   }
 
@@ -423,6 +472,7 @@ let endEdgeUpdate = (v) => {
   if (existing) {
     removeEdgeFromEdges(edge);
     removeEdgeFromSvgEdges(edge);
+    removeEdgeWeightFromSvgEdgeWeights(edge);
     return;
   }
 
@@ -430,9 +480,11 @@ let endEdgeUpdate = (v) => {
   if (complement) {
     removeEdgeFromEdges(edge);
     removeEdgeFromSvgEdges(edge);
+    removeEdgeWeightFromSvgEdgeWeights(edge);
 
     complement.isBidirected = true;
     removeEdgeFromSvgEdges(complement);
+    removeEdgeWeightFromSvgEdgeWeights(complement);
     addEdgeToSvg(complement);
     return;
   }
@@ -688,7 +740,7 @@ let copyVertex = (v) => {
 
 let copyEdge = (e) => {
   if (!e) return null;
-  return Edge2v(getVertex(e.v1), getVertex(e.v2), e.id);
+  return Edge2v(getVertex(e.v1), getVertex(e.v2), e.id, e.isBidirected);
 };
 
 let getState = () => {
