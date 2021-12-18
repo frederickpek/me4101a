@@ -25,21 +25,11 @@ let getSvgLoc = (e) => {
 };
 
 let getSvgVertices = () => {
-  for (let child of svg.children) {
-    if (child.getAttributeNS(null, 'class') == "vertices") {
-      return child;
-    }
-  }
-  return null;
+  return document.querySelector('.vertices');
 };
 
 let getSvgEdges = () => {
-  for (let child of svg.children) {
-    if (child.getAttributeNS(null, 'class') == "edges") {
-      return child;
-    }
-  }
-  return null;
+  return document.querySelector('.edges');
 };
 
 let getSvgEdgeWeights = () => {
@@ -82,15 +72,6 @@ let removeEdgeFromSvgEdges = (e) => {
   }
 };
 
-let removeEdgeWeightFromSvgEdgeWeights = (e) => {
-  let svgEdgesWeights = getSvgEdgeWeights();
-  for (let child of svgEdgesWeights.children) {
-    if (child.getAttributeNS(null, 'id') == e.id) {
-      svgEdgesWeights.removeChild(child);
-    }
-  }
-};
-
 let deleteVertexListener = (v) => {
   return (e) => {
     e.preventDefault();
@@ -104,7 +85,6 @@ let deleteVertexListener = (v) => {
     for (let edge of edgeList) {
       removeEdgeFromEdges(edge);
       removeEdgeFromSvgEdges(edge);
-      removeEdgeWeightFromSvgEdgeWeights(edge);
     }
   };
 };
@@ -130,10 +110,6 @@ let updateVertexLoc = (v, x, y) => {
       let label = getVertexLabel(vertex);
       label.setAttributeNS(null, 'x', v.x);
       label.setAttributeNS(null, 'y', v.y);
-
-      /* lasy refactor */
-      let svgEdges = getSvgEdges();
-      let svgEdgeWeights = getSvgEdgeWeights();
 
       edgeList = edges.filter(e => e.v1 == v.id);
       for (let edge of edgeList) {
@@ -232,7 +208,6 @@ let reset = () => {
   edges = [];
   vertexIdSpeficier = 0;
   edgeIdSpeficier = 1;
-  clearChild(getSvgEdgeWeights());
   clearChild(getSvgVertices());
   clearChild(getSvgEdges());
   currEdge = null;
@@ -256,7 +231,43 @@ let getVertexBody = (v) => {
     }
   }
   return null;
-}
+};
+
+let getEdgeBody = (e) => {
+  for (let child of e.children) {
+    if (child.getAttributeNS(null, 'class') == 'body') {
+      return child;
+    }
+  }
+  return null;
+};
+
+let getEdgeHead = (e) => {
+  for (let child of e.children) {
+    if (child.getAttributeNS(null, 'class') == 'head') {
+      return child;
+    }
+  }
+  return null;
+};
+
+let getEdgeTail = (e) => {
+  for (let child of e.children) {
+    if (child.getAttributeNS(null, 'class') == 'tail') {
+      return child;
+    }
+  }
+  return null;
+};
+
+let getEdgeEdgeWeight = (e) => {
+  for (let child of e.children) {
+    if (child.getAttributeNS(null, 'class') == 'edgeweight') {
+      return child;
+    }
+  }
+  return null;
+};
 
 let getVertexLabel = (v) => {
   for (let child of v.children) {
@@ -265,7 +276,7 @@ let getVertexLabel = (v) => {
     }
   }
   return null;
-}
+};
 
 let Edge = (v, id, isBidirected) => {
   return {
@@ -277,6 +288,7 @@ let Edge = (v, id, isBidirected) => {
     x2: v.x,
     y2: v.y,
     isBidirected: isBidirected,
+    edgeWeight: 0,
   };
 };
 
@@ -290,6 +302,7 @@ let Edge2v = (v1, v2, id, isBidirected) => {
     x2: v2.x,
     y2: v2.y,
     isBidirected: isBidirected,
+    edgeWeight: 0,
   };
 };
 
@@ -304,7 +317,6 @@ let deleteEdgeListener = (e) => {
     resetTraversal();
     removeEdgeFromEdges(e);
     removeEdgeFromSvgEdges(e);
-    removeEdgeWeightFromSvgEdgeWeights(e);
   };
 };
 
@@ -327,7 +339,7 @@ let addEdgeWeightToSvg = (e) => {
 
   if (Number.isNaN(Xw)) Xw = -100;
   if (Number.isNaN(Yw)) Yw = -100;
- if (Number.isNaN(rotate)) rotate = 0;
+  if (Number.isNaN(rotate)) rotate = 0;
 
   let edgeweight = document.createElementNS(SVG_URI, 'text');
   edgeweight.setAttributeNS(null, 'class', "edgeweight");
@@ -340,27 +352,128 @@ let addEdgeWeightToSvg = (e) => {
   svgEdgesWeights.appendChild(edgeweight);
 };
 
+let point = (x, y) => {
+  return { x: x, y: y };
+};
+
+let vec = (x, y) => {
+  return { x: x, y: y };
+};
+
+let toVec = (p1, p2) => {
+  return vec(p2.x-p1.x, p2.y-p1.y);
+};
+
+let dot = (a, b) => {
+  return a.x*b.x + a.y*b.y;
+};
+
+let norm_sq = (v) => {
+  return v.x*v.x + v.y*v.y;
+};
+
+let angle = (a, o, b) => {
+  let oa = toVec(o, a);
+  let ob = toVec(o, b);
+  return Math.acos(dot(oa, ob)/Math.sqrt(norm_sq(oa)*norm_sq(ob)));
+};
+
+let getEdgeSvgParams = (e) => {
+  // edge weight
+  let x1 = (e.x1>e.x2) ? e.x1 : e.x2;
+  let y1 = (e.x1>e.x2) ? e.y1 : e.y2;
+  let x2 = (e.x1>e.x2) ? e.x2 : e.x1;
+  let y2 = (e.x1>e.x2) ? e.y2 : e.y1;
+  
+  let H = 3;
+  let dy = Math.abs(y1 - y2);
+  let dx = Math.abs(x1 - x2);
+  let beta = Math.atan(dy/dx);
+  let d = Math.sqrt(dy*dy + dx*dx);
+  let x = (x1 + x2) / 2;
+  let y = (y1 + y2) / 2;
+  let yw = y - H*Math.cos(beta);
+  let xw = (y1>y2) ? x + H*Math.sin(beta) : x - H*Math.sin(beta);
+  let rotate = (y1>y2) ? beta*180/Math.PI : -beta*180/Math.PI;
+
+  if (Number.isNaN(xw)) xw = -100;
+  if (Number.isNaN(yw)) yw = -100;
+  if (Number.isNaN(rotate)) rotate = 0;
+
+  x1 = e.x1, y1 = e.y1, x2 = e.x2, y2 = e.y2;
+
+  let height = 10, base = 5;
+
+  let p1 = point(1, 0);
+  let p2 = point(0, 0);
+  let p3 = point(x2-x1, y1-y2);
+
+  let alpha = (y1>y2) ? -angle(p1, p2, p3) : angle(p1, p2, p3);
+
+  let xh = x2 - VERTEX_RADIUS*Math.cos(alpha);
+  let yh = y2 - VERTEX_RADIUS*Math.sin(alpha);
+
+  let theta = alpha + Math.PI;
+  let xt = x1 - VERTEX_RADIUS*Math.cos(theta);
+  let yt = y1 - VERTEX_RADIUS*Math.sin(theta);
+
+  return {
+    xw: xw,
+    yw: yw,
+    aw: rotate,
+
+    h: height,
+    b: base,
+
+    xh: xh,
+    yh: yh,
+    ah: alpha*180/3.14,
+
+    xt: xt,
+    yt: yt,
+    at: theta*180/3.14,
+  };
+};
+
 let addEdgeToSvg = (e) => {
-  let edge = document.createElementNS(SVG_URI, 'line');
-  edge.setAttributeNS(null, 'class', "edge");
-  edge.setAttributeNS(null, 'id', e.id);
-  edge.setAttributeNS(null, 'x1', e.x1);
-  edge.setAttributeNS(null, 'y1', e.y1);
-  edge.setAttributeNS(null, 'x2', e.x2);
-  edge.setAttributeNS(null, 'y2', e.y2);
-  edge.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
-  edge.setAttributeNS(null, 'stroke', BLACK);
-  edge.setAttributeNS(null, 'marker-end', "url(#endarrowhead)");
-  if (e.isBidirected) {
-    edge.setAttributeNS(null, 'marker-start', "url(#startarrowhead)");
-  }
+  let group = document.createElementNS(SVG_URI, 'g');
+  group.setAttributeNS(null, 'class', "edge");
+  group.setAttributeNS(null, 'id', e.id);
 
-  let svgEdges = getSvgEdges();
-  svgEdges.appendChild(edge);
+  let body = document.createElementNS(SVG_URI, 'line');
+  body.setAttributeNS(null, 'class', "body");
+  body.setAttributeNS(null, 'id', e.id);
+  body.setAttributeNS(null, 'x1', e.x1);
+  body.setAttributeNS(null, 'y1', e.y1);
+  body.setAttributeNS(null, 'x2', e.x2);
+  body.setAttributeNS(null, 'y2', e.y2);
+  body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
+  body.setAttributeNS(null, 'stroke', BLACK);
+  
+  let E = getEdgeSvgParams(e);
 
-  addEdgeWeightToSvg(e);
-
-  edge.addEventListener('contextmenu', deleteEdgeListener(e));
+  let edgeweight = document.createElementNS(SVG_URI, 'text');
+  edgeweight.setAttributeNS(null, 'class', "edgeweight");
+  edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
+  edgeweight.setAttributeNS(null,'font-size', '10');
+  edgeweight.innerHTML = (e.edgeWeight + e.id) % 5 + 1;
+  
+  let head = document.createElementNS(SVG_URI, 'polygon');
+  head.setAttributeNS(null, 'class', "head");
+  head.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
+  head.setAttributeNS(null, 'transform', "translate("+E.xh+","+E.yh+") rotate("+E.ah+")");
+  
+  let tail = document.createElementNS(SVG_URI, 'polygon');
+  tail.setAttributeNS(null, 'class', "tail");
+  tail.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
+  tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
+  
+  group.appendChild(body);
+  group.appendChild(head);
+  group.appendChild(tail);
+  //group.appendChild(edgeweight);
+  getSvgEdges().appendChild(group);
+  group.addEventListener('contextmenu', deleteEdgeListener(e));
 };
 
 let addEdge = (v, isBidirected) => {
@@ -393,12 +506,22 @@ let updateEdgeSvg = (e) => {
   for (let child of svgEdges.children) {
     if (child.getAttributeNS(null, 'id') == e.id) {
       /* however many attributes required */
-      child.setAttributeNS(null, 'x1', e.x1);
-      child.setAttributeNS(null, 'y1', e.y1);
-      child.setAttributeNS(null, 'x2', e.x2);
-      child.setAttributeNS(null, 'y2', e.y2);
-      removeEdgeWeightFromSvgEdgeWeights(e);
-      addEdgeWeightToSvg(e);
+      let body = getEdgeBody(child);
+      let head = getEdgeHead(child);
+      let tail = getEdgeTail(child);
+      let edgeweight = getEdgeEdgeWeight(child);
+
+      body.setAttributeNS(null, 'x1', e.x1);
+      body.setAttributeNS(null, 'y1', e.y1);
+      body.setAttributeNS(null, 'x2', e.x2);
+      body.setAttributeNS(null, 'y2', e.y2);
+
+      let E = getEdgeSvgParams(e);
+
+      if (head) head.setAttributeNS(null, 'transform', "translate("+E.xh+","+E.yh+") rotate("+E.ah+")");
+      if (head) tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
+      if (edgeweight) edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
+
       break;
     }
   }
@@ -449,12 +572,10 @@ let endEdgeUpdate = (v) => {
     if (existing) {
       removeEdgeFromEdges(existing);
       removeEdgeFromSvgEdges(existing);
-      removeEdgeWeightFromSvgEdgeWeights(existing);
     }
     if (complement) {
       removeEdgeFromEdges(complement);
       removeEdgeFromSvgEdges(complement);
-      removeEdgeWeightFromSvgEdgeWeights(complement);
     }
     return;
   }
@@ -464,7 +585,6 @@ let endEdgeUpdate = (v) => {
     || (complement && complement.isBidirected)) {
     removeEdgeFromEdges(edge);
     removeEdgeFromSvgEdges(edge);
-    removeEdgeWeightFromSvgEdgeWeights(edge);
     return;
   }
 
@@ -472,7 +592,6 @@ let endEdgeUpdate = (v) => {
   if (existing) {
     removeEdgeFromEdges(edge);
     removeEdgeFromSvgEdges(edge);
-    removeEdgeWeightFromSvgEdgeWeights(edge);
     return;
   }
 
@@ -480,11 +599,9 @@ let endEdgeUpdate = (v) => {
   if (complement) {
     removeEdgeFromEdges(edge);
     removeEdgeFromSvgEdges(edge);
-    removeEdgeWeightFromSvgEdgeWeights(edge);
 
     complement.isBidirected = true;
     removeEdgeFromSvgEdges(complement);
-    removeEdgeWeightFromSvgEdgeWeights(complement);
     addEdgeToSvg(complement);
     return;
   }

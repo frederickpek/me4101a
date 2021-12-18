@@ -62,8 +62,13 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
         stroke: targetObj.stroke,
         stroke_width: targetObj.stroke_width,
         update: function () {
-          targetSvg.setAttributeNS(null, 'stroke', initialObj.stroke);
-          targetSvg.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
+          let body = getEdgeBody(targetSvg);
+          let head = getEdgeHead(targetSvg);
+          let tail = getEdgeTail(targetSvg);
+          head.setAttributeNS(null, 'fill', initialObj.stroke);
+          tail.setAttributeNS(null, 'fill', initialObj.stroke);
+          body.setAttributeNS(null, 'stroke', initialObj.stroke);
+          body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
         }
       });
   }
@@ -91,26 +96,26 @@ let addVertexAnimation3 = (targetSvg, dur) => {
 
 // normal to red
 let addEdgeAnimation1 = (targetSvg, dur) => {
-  seqForward.push(generateVertexAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_2(), EDGE_OBJ_3()], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_2(), EDGE_OBJ_1()], dur));
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_2(), EDGE_OBJ_3()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_2(), EDGE_OBJ_1()], dur));
 }
 
 // normal to fade
 let addEdgeAnimation2 = (targetSvg, dur) => {
-  seqForward.push(generateVertexAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_1()], dur));
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_1()], dur));
 }
 
 // red to green
 let addEdgeAnimation3 = (targetSvg, dur) => {
-  seqForward.push(generateVertexAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_3()], dur));
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_3()], dur));
 }
 
 // normal to green
 let addEdgeAnimation4 = (targetSvg, dur) => {
-  seqForward.push(generateVertexAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_1()], dur));
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_1()], dur));
 }
 
 let resetAnimations = () => {
