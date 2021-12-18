@@ -30,7 +30,7 @@ body {
 }
 
 .label {
-  font: bold 14px Arial;
+  font: bold 14px Courier New;
   text-anchor: middle;
   dominant-baseline: central;
   cursor: default;
@@ -39,6 +39,7 @@ body {
 .vertex:hover .body {
   fill: #21e264;
   opacity: 1;
+  r: 15;
 }
 
 .logo-edge {
@@ -46,8 +47,21 @@ body {
   stroke-width: 2;
 }
 
-.edge:hover {
+.edge:hover .body {
   stroke: red;
+}
+
+.edge:hover .head {
+  fill: red;
+}
+
+.edge:hover .tail {
+  fill: red;
+}
+
+.edge:hover .edgeweight {
+  fill: red;
+  font: bold 12px Courier New;
 }
 
 .button {
@@ -133,5 +147,6 @@ input:checked + .slider:before {
 }
 
 .edgeweight {
+  font: bold 10px Courier New;
   text-decoration: underline;
 }

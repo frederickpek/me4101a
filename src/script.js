@@ -455,23 +455,24 @@ let addEdgeToSvg = (e) => {
   let edgeweight = document.createElementNS(SVG_URI, 'text');
   edgeweight.setAttributeNS(null, 'class', "edgeweight");
   edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
-  edgeweight.setAttributeNS(null,'font-size', '10');
   edgeweight.innerHTML = (e.edgeWeight + e.id) % 5 + 1;
   
   let head = document.createElementNS(SVG_URI, 'polygon');
   head.setAttributeNS(null, 'class', "head");
+  head.setAttributeNS(null, 'fill', BLACK);
   head.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
   head.setAttributeNS(null, 'transform', "translate("+E.xh+","+E.yh+") rotate("+E.ah+")");
   
   let tail = document.createElementNS(SVG_URI, 'polygon');
   tail.setAttributeNS(null, 'class', "tail");
+  tail.setAttributeNS(null, 'fill', BLACK);
   tail.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
   tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
   
+  // group.appendChild(edgeweight);
   group.appendChild(body);
   group.appendChild(head);
   group.appendChild(tail);
-  //group.appendChild(edgeweight);
   getSvgEdges().appendChild(group);
   group.addEventListener('contextmenu', deleteEdgeListener(e));
 };
