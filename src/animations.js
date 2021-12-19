@@ -85,8 +85,10 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
 
           head.setAttributeNS(null, 'fill', initialObj.stroke);
           head.setAttributeNS(null, "points", "0,0 " + (-h)+","+(b/2) + " " + (-h)+","+(-b/2));
-          tail.setAttributeNS(null, 'fill', initialObj.stroke);
-          tail.setAttributeNS(null, "points", "0,0 " + (-h)+","+(b/2) + " " + (-h)+","+(-b/2));
+          if (tail) {
+            tail.setAttributeNS(null, 'fill', initialObj.stroke);
+            tail.setAttributeNS(null, "points", "0,0 " + (-h)+","+(b/2) + " " + (-h)+","+(-b/2));
+          }
           body.setAttributeNS(null, 'stroke', initialObj.stroke);
           body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
         }

@@ -411,6 +411,7 @@ let addEdgeToSvg = (e) => {
   body.setAttributeNS(null, 'y2', e.y2);
   body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
   body.setAttributeNS(null, 'stroke', BLACK);
+  group.appendChild(body);
   
   let E = getEdgeSvgParams(e);
 
@@ -418,23 +419,24 @@ let addEdgeToSvg = (e) => {
   edgeweight.setAttributeNS(null, 'class', "edgeweight");
   edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
   edgeweight.innerHTML = (e.edgeWeight + e.id) % 5 + 1;
+  //group.appendChild(edgeweight);
   
   let head = document.createElementNS(SVG_URI, 'polygon');
   head.setAttributeNS(null, 'class', "head");
   head.setAttributeNS(null, 'fill', BLACK);
   head.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
   head.setAttributeNS(null, 'transform', "translate("+E.xh+","+E.yh+") rotate("+E.ah+")");
-  
-  let tail = document.createElementNS(SVG_URI, 'polygon');
-  tail.setAttributeNS(null, 'class', "tail");
-  tail.setAttributeNS(null, 'fill', BLACK);
-  tail.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
-  tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
-  
-  // group.appendChild(edgeweight);
-  group.appendChild(body);
   group.appendChild(head);
-  group.appendChild(tail);
+  
+  if (e.isBidirected) {
+    let tail = document.createElementNS(SVG_URI, 'polygon');
+    tail.setAttributeNS(null, 'class', "tail");
+    tail.setAttributeNS(null, 'fill', BLACK);
+    tail.setAttributeNS(null, "points", "0,0 " + (-E.h)+","+(E.b/2) + " " + (-E.h)+","+(-E.b/2));
+    tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
+    group.appendChild(tail);
+  }
+
   getSvgEdges().appendChild(group);
   group.addEventListener('contextmenu', deleteEdgeListener(e));
 };
@@ -482,7 +484,7 @@ let updateEdgeSvg = (e) => {
       let E = getEdgeSvgParams(e);
 
       if (head) head.setAttributeNS(null, 'transform', "translate("+E.xh+","+E.yh+") rotate("+E.ah+")");
-      if (head) tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
+      if (tail) tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
       if (edgeweight) edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
 
       break;
