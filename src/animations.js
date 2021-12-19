@@ -1,27 +1,39 @@
-let BLACK = '#000000';
-let BLUE = '#26428b';
-let GREEN = '#0f9d57';
-let RED = '#db4437';
-let WHITE = '#f0f0f0';
-let FADE = '#e6e6e6';
+const BLACK = '#000000';
+const BLUE  = '#26428b';
+const GREEN = '#0f9d57';
+const RED   = '#db4437';
+const WHITE = '#f0f0f0';
+const FADE  = '#e6e6e6';
 
-let STROKE_WIDTH_1 = 1.5;
-let STROKE_WIDTH_2 = 4;
+const STROKE_WIDTH_1 = 1.5;
+const STROKE_WIDTH_2 = 4;
+const STROKE_WIDTH_3 = 2;
+
+const ARROW_BASE    = 5;
+const ARROW_HEIGHT  = 10;
+
+const ARROW_BASE_1 = 5;
+const ARROW_BASE_2 = 9;
+const ARROW_BASE_3 = 6;
+
+const ARROW_HEIGHT_1 = 10;
+const ARROW_HEIGHT_2 = 13;
+const ARROW_HEIGHT_3 = 11;
 
 let progress = document.querySelector('.progress');
 
 let VERTEX_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, fill: WHITE }; };
-let VERTEX_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED, fill: RED }; };
-let VERTEX_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED, fill: WHITE }; };
+let VERTEX_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED,   fill: RED   }; };
+let VERTEX_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   fill: WHITE }; };
 let VERTEX_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, fill: GREEN }; };
-let VERTEX_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_1+0.5, stroke: GREEN, fill: WHITE }; };
+let VERTEX_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, fill: WHITE }; };
 
-let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK }; };
-let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED }; };
-let EDGE_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED }; };
-let EDGE_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: FADE }; };
-let EDGE_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN }; };
-let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_1+0.5, stroke: GREEN }; };
+let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
+let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED,   arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
+let EDGE_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
+let EDGE_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: FADE,  arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
+let EDGE_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
+let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, arrow_base: ARROW_BASE_3, arrow_height: ARROW_HEIGHT_3 }; };
 
 let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
   let animation = anime.timeline({
@@ -61,12 +73,20 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
     animation.add({
         stroke: targetObj.stroke,
         stroke_width: targetObj.stroke_width,
+        arrow_base: targetObj.arrow_base,
+        arrow_height: targetObj.arrow_height,
         update: function () {
           let body = getEdgeBody(targetSvg);
           let head = getEdgeHead(targetSvg);
           let tail = getEdgeTail(targetSvg);
+
+          let b = initialObj.arrow_base;
+          let h = initialObj.arrow_height;
+
           head.setAttributeNS(null, 'fill', initialObj.stroke);
+          head.setAttributeNS(null, "points", "0,0 " + (-h)+","+(b/2) + " " + (-h)+","+(-b/2));
           tail.setAttributeNS(null, 'fill', initialObj.stroke);
+          tail.setAttributeNS(null, "points", "0,0 " + (-h)+","+(b/2) + " " + (-h)+","+(-b/2));
           body.setAttributeNS(null, 'stroke', initialObj.stroke);
           body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
         }

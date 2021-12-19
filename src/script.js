@@ -32,10 +32,6 @@ let getSvgEdges = () => {
   return document.querySelector('.edges');
 };
 
-let getSvgEdgeWeights = () => {
-  return document.querySelector('.edge-weights');
-};
-
 let removeVertexFromVertices = (v) => {
   vertices = vertices.filter(u => u.id != v.id);
 };
@@ -320,38 +316,6 @@ let deleteEdgeListener = (e) => {
   };
 };
 
-let addEdgeWeightToSvg = (e) => {
-  let x1 = (e.x1>e.x2) ? e.x1 : e.x2;
-  let y1 = (e.x1>e.x2) ? e.y1 : e.y2;
-  let x2 = (e.x1>e.x2) ? e.x2 : e.x1;
-  let y2 = (e.x1>e.x2) ? e.y2 : e.y1;
-  
-  let H = 3;
-  let dy = Math.abs(y1 - y2);
-  let dx = Math.abs(x1 - x2);
-  let beta = Math.atan(dy/dx);
-  let d = Math.sqrt(dy*dy + dx*dx);
-  let x = (x1 + x2) / 2;
-  let y = (y1 + y2) / 2;
-  let Yw = y - H*Math.cos(beta);
-  let Xw = (y1>y2) ? x + H*Math.sin(beta) : x - H*Math.sin(beta);
-  let rotate = (y1>y2) ? beta*180/3.14 : -beta*180/3.14;
-
-  if (Number.isNaN(Xw)) Xw = -100;
-  if (Number.isNaN(Yw)) Yw = -100;
-  if (Number.isNaN(rotate)) rotate = 0;
-
-  let edgeweight = document.createElementNS(SVG_URI, 'text');
-  edgeweight.setAttributeNS(null, 'class', "edgeweight");
-  edgeweight.setAttributeNS(null, 'id', e.id);
-  edgeweight.setAttributeNS(null, 'transform', "translate("+Xw+","+Yw+") rotate("+rotate+")");
-  edgeweight.setAttributeNS(null,'font-size', '10');
-  edgeweight.innerHTML = "";// e.id;
-
-  let svgEdgesWeights = getSvgEdgeWeights();
-  svgEdgesWeights.appendChild(edgeweight);
-};
-
 let point = (x, y) => {
   return { x: x, y: y };
 };
@@ -402,8 +366,6 @@ let getEdgeSvgParams = (e) => {
 
   x1 = e.x1, y1 = e.y1, x2 = e.x2, y2 = e.y2;
 
-  let height = 10, base = 5;
-
   let p1 = point(1, 0);
   let p2 = point(0, 0);
   let p3 = point(x2-x1, y1-y2);
@@ -422,8 +384,8 @@ let getEdgeSvgParams = (e) => {
     yw: yw,
     aw: rotate,
 
-    h: height,
-    b: base,
+    h: ARROW_HEIGHT_1,
+    b: ARROW_BASE_1,
 
     xh: xh,
     yh: yh,
