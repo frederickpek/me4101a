@@ -1,6 +1,8 @@
 /* * { outline: 1px solid red } */
 
 body {
+  margin: 0;
+  padding: 0;
   background-color: #FFFAF1;
 }
 
@@ -15,20 +17,6 @@ body {
   */
 }
 
-#icon {
-  vertical-align: sub;
-  /*
-  background: #f0f0f0;
-  outline: 2px solid black;
-  */
-}
-
-.logo-body {
-  fill: #f0f0f0;
-  stroke-width: 2;
-  stroke: black;
-}
-
 .label {
   font: bold 14px Courier New;
   text-anchor: middle;
@@ -40,11 +28,6 @@ body {
   fill: #21e264;
   opacity: 1;
   r: 15;
-}
-
-.logo-edge {
-  stroke: black;
-  stroke-width: 2;
 }
 
 .edge:hover .body {
@@ -149,4 +132,39 @@ input:checked + .slider:before {
 .edgeweight {
   font: bold 10px Courier New;
   text-decoration: underline;
+}
+
+.title {
+  float: left;
+  color: #f2f2f2;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav {
+  font: bold 10px Courier New;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #111;
+}
+
+.topnav a {
+  float: right;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 5px 16px 5px;
+  text-decoration: none;
+  font-size: 30px;
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #04AA6D;
+  color: white;
 }
