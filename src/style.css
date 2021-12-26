@@ -30,6 +30,13 @@ body {
   r: 15;
 }
 
+.edgeweight {
+  font: bold 10px Courier New;
+  text-decoration: underline;
+  text-anchor: middle;
+  cursor: default;
+}
+
 .edge:hover .body {
   stroke: red;
 }
@@ -127,11 +134,6 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
-}
-
-.edgeweight {
-  font: bold 10px Courier New;
-  text-decoration: underline;
 }
 
 .topnav {

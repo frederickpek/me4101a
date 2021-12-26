@@ -29,7 +29,7 @@
       <div>
         <button type="button" onclick="loadSampleGraph1()">Load</button>
         <label for="quantity">Complete Binary Tree of height H:</label>
-        <input type="number" id="quantity-1" name="quantity" min="0" max="4" value="3" width="100" style="width: 30px;"oninput="loadSampleGraph1()">
+        <input type="number" id="quantity-1" name="quantity" min="0" max="4" value="3" width="100" style="width: 30px;" oninput="loadSampleGraph1()">
       </div>
       <div>
         <button type="button" onclick="loadSampleGraph2()">Load</button>
@@ -81,7 +81,12 @@
       <input class="bidirected-edge" type="checkbox" checked>
       <span class="slider round"></span>
     </label>
-    <div style="display: inline-block;">Bidirected Edges</div>
+    <div style="display: inline-block; margin-right: 20px">Bidirected Edges</div>
+    <label class="switch">
+      <input class="edgeweight-switch" type="checkbox" checked oninput="toggleEdgeWeights()">
+      <span class="slider round"></span>
+    </label>
+    <div style="display: inline-block;">Edge Weights</div>
     <svg id="viewbox" viewBox="0 0 600 400">
       <g class="edges"></g>
       <g class="vertices"></g>

@@ -6,7 +6,6 @@ let edges = [];
 let vertexIdSpeficier = 0;
 let edgeIdSpeficier = 1;
 let svg = document.getElementById("viewbox");
-let bidirectedEdgeCheckbox = document.querySelector('.bidirected-edge');
 
 /* edge creation variables */
 let currEdge = null;
@@ -15,7 +14,11 @@ let currEdge = null;
 let currVertex = null;
 
 let isBidirectedEdge = () => {
-  return bidirectedEdgeCheckbox.checked;
+  return document.querySelector('.bidirected-edge').checked;
+};
+
+let isShowingEdgeWeights = () => {
+  return document.querySelector('.edgeweight-switch').checked;
 };
 
 let getSvgLoc = (e) => {
@@ -360,10 +363,6 @@ let getEdgeSvgParams = (e) => {
   let xw = (y1>y2) ? x + H*Math.sin(beta) : x - H*Math.sin(beta);
   let rotate = (y1>y2) ? beta*180/Math.PI : -beta*180/Math.PI;
 
-  if (Number.isNaN(xw)) xw = -100;
-  if (Number.isNaN(yw)) yw = -100;
-  if (Number.isNaN(rotate)) rotate = 0;
-
   x1 = e.x1, y1 = e.y1, x2 = e.x2, y2 = e.y2;
 
   let p1 = point(1, 0);
@@ -378,6 +377,18 @@ let getEdgeSvgParams = (e) => {
   let theta = alpha + Math.PI;
   let xt = x1 - VERTEX_RADIUS*Math.cos(theta);
   let yt = y1 - VERTEX_RADIUS*Math.sin(theta);
+
+  if (Number.isNaN(xw)) xw = -100;
+  if (Number.isNaN(yw)) yw = -100;
+  if (Number.isNaN(rotate)) rotate = 0;
+
+  if (Number.isNaN(xh)) xh = -100;
+  if (Number.isNaN(yh)) yh = -100;
+  if (Number.isNaN(alpha)) alpha = 0;
+
+  if (Number.isNaN(xt)) xt = -100;
+  if (Number.isNaN(yt)) yt = -100;
+  if (Number.isNaN(theta)) theta = 0;
 
   return {
     xw: xw,
@@ -418,8 +429,8 @@ let addEdgeToSvg = (e) => {
   let edgeweight = document.createElementNS(SVG_URI, 'text');
   edgeweight.setAttributeNS(null, 'class', "edgeweight");
   edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
-  edgeweight.innerHTML = (e.edgeWeight + e.id) % 5 + 1;
-  //group.appendChild(edgeweight);
+  edgeweight.textContent = (e.edgeWeight + e.id) % 5 + 1;
+  group.appendChild(edgeweight);
   
   let head = document.createElementNS(SVG_URI, 'polygon');
   head.setAttributeNS(null, 'class', "head");
@@ -439,6 +450,44 @@ let addEdgeToSvg = (e) => {
 
   getSvgEdges().appendChild(group);
   group.addEventListener('contextmenu', deleteEdgeListener(e));
+  edgeweight.addEventListener('click', edgeWeightUIOnClickEvent(E));
+};
+
+let edgeWeightUiOnClickEvent = (E) => {
+  return (event) => {
+    console.log("left-clicked on edgeweight");
+
+    // let foreigner = document.createElementNS(SVG_URI, "foreignObject");
+    // foreigner.setAttributeNS(null, "x", E.xw);
+    // foreigner.setAttributeNS(null, "y", E.yw);
+    // foreigner.setAttributeNS(null, "width", 30);
+    // foreigner.setAttributeNS(null, "height", 50);
+    // let div = document.createElement('div');
+    // div.setAttributeNS(null, 'contentEditable', "true");
+    // foreigner.appendChild(div);
+    // svg.appendChild(foreigner);
+
+    event.stopPropagation();
+  };
+};
+
+let hideEdgeWeights = () => {
+  // have take it to be 0 when hidden.
+  let style = document.createElement('style');
+  style.innerHTML = '.edgeweight { display: none; }';
+  let ref = document.querySelector('script');
+  ref.parentNode.insertBefore(style, ref);
+};
+
+let showEdgeWeights = () => {
+  let style = document.querySelector('style');
+  style.parentNode.removeChild(style);
+};
+
+let toggleEdgeWeights = () => {
+  if (isShowingEdgeWeights()) {
+    showEdgeWeights();
+  } else hideEdgeWeights();
 };
 
 let addEdge = (v, isBidirected) => {
@@ -508,7 +557,6 @@ let updateCurrEdge = (x, y) => {
   updateEdgeSvg(edge);
 };
 
-// can afford to tidy here
 let endEdgeUpdate = (v) => {
   let edge = getCurrEgde();
   edge.v2 = v.id;

@@ -79,10 +79,12 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
           let body = getEdgeBody(targetSvg);
           let head = getEdgeHead(targetSvg);
           let tail = getEdgeTail(targetSvg);
+          let edgeweight = getEdgeEdgeWeight(targetSvg);
 
           let b = initialObj.arrow_base;
           let h = initialObj.arrow_height;
 
+          edgeweight.setAttributeNS(null, 'fill', initialObj.stroke);
           head.setAttributeNS(null, 'fill', initialObj.stroke);
           head.setAttributeNS(null, "points", "0,0 " + (-h)+","+(b/2) + " " + (-h)+","+(-b/2));
           if (tail) {
