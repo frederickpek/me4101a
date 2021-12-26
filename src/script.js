@@ -13,6 +13,8 @@ let currEdge = null;
 /* dragging variables */
 let currVertex = null;
 
+let $ = (id) => { return document.querySelector(id); }
+
 let isBidirectedEdge = () => {
   return document.querySelector('.bidirected-edge').checked;
 };
@@ -268,6 +270,15 @@ let getEdgeEdgeWeight = (e) => {
   return null;
 };
 
+let getEdge = (id) => {
+  for (let edge of edges) {
+    if (edge.id == id) {
+      return edge;
+    }
+  }
+  return null;
+};
+
 let getVertexLabel = (v) => {
   for (let child of v.children) {
     if (child.getAttributeNS(null, 'class') == 'label') {
@@ -277,7 +288,7 @@ let getVertexLabel = (v) => {
   return null;
 };
 
-let Edge = (v, id, isBidirected) => {
+let Edge = (v, id, isBidirected, edgeWeight) => {
   return {
     id: id,
     v1: v.id,
@@ -287,11 +298,11 @@ let Edge = (v, id, isBidirected) => {
     x2: v.x,
     y2: v.y,
     isBidirected: isBidirected,
-    edgeWeight: 0,
+    edgeWeight: edgeWeight,
   };
 };
 
-let Edge2v = (v1, v2, id, isBidirected) => {
+let Edge2v = (v1, v2, id, isBidirected, edgeWeight) => {
   return {
     id: id,
     v1: v1.id,
@@ -301,7 +312,7 @@ let Edge2v = (v1, v2, id, isBidirected) => {
     x2: v2.x,
     y2: v2.y,
     isBidirected: isBidirected,
-    edgeWeight: 0,
+    edgeWeight: edgeWeight,
   };
 };
 
@@ -346,7 +357,6 @@ let angle = (a, o, b) => {
 };
 
 let getEdgeSvgParams = (e) => {
-  // edge weight
   let x1 = (e.x1>e.x2) ? e.x1 : e.x2;
   let y1 = (e.x1>e.x2) ? e.y1 : e.y2;
   let x2 = (e.x1>e.x2) ? e.x2 : e.x1;
@@ -405,6 +415,8 @@ let getEdgeSvgParams = (e) => {
     xt: xt,
     yt: yt,
     at: theta*180/3.14,
+
+    edge: e,
   };
 };
 
@@ -429,7 +441,7 @@ let addEdgeToSvg = (e) => {
   let edgeweight = document.createElementNS(SVG_URI, 'text');
   edgeweight.setAttributeNS(null, 'class', "edgeweight");
   edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
-  edgeweight.textContent = (e.edgeWeight + e.id) % 5 + 1;
+  edgeweight.textContent = e.edgeWeight;
   group.appendChild(edgeweight);
   
   let head = document.createElementNS(SVG_URI, 'polygon');
@@ -450,22 +462,58 @@ let addEdgeToSvg = (e) => {
 
   getSvgEdges().appendChild(group);
   group.addEventListener('contextmenu', deleteEdgeListener(e));
-  edgeweight.addEventListener('click', edgeWeightUiOnClickEvent(E));
+  edgeweight.addEventListener('click', edgeWeightUiOnClickEvent(e.id));
 };
 
-let edgeWeightUiOnClickEvent = (E) => {
+let edgeWeightUiOnClickEvent = (edgeId) => {
   return (event) => {
-    console.log("left-clicked on edgeweight");
+    save();
+    resetTraversal();
+    let E = getEdgeSvgParams(getEdge(edgeId));
 
-    // let foreigner = document.createElementNS(SVG_URI, "foreignObject");
-    // foreigner.setAttributeNS(null, "x", E.xw);
-    // foreigner.setAttributeNS(null, "y", E.yw);
-    // foreigner.setAttributeNS(null, "width", 30);
-    // foreigner.setAttributeNS(null, "height", 50);
-    // let div = document.createElement('div');
-    // div.setAttributeNS(null, 'contentEditable', "true");
-    // foreigner.appendChild(div);
-    // svg.appendChild(foreigner);
+    let foreigner = document.createElementNS(SVG_URI, "foreignObject");
+    foreigner.setAttributeNS(null, "class", "foreigner");
+    foreigner.setAttributeNS(null, "x", E.xw);
+    foreigner.setAttributeNS(null, "y", E.yw);
+    foreigner.setAttributeNS(null, "width", 58);
+    foreigner.setAttributeNS(null, "height", 19);
+
+    let input = document.createElement('input');
+    input.setAttributeNS(null, "class", "edge-weight-input");
+    input.setAttributeNS(null, "type", "number");
+    input.setAttributeNS(null, "min", "0");
+    input.setAttributeNS(null, "value", E.edge.edgeWeight);
+
+    let grayRect = document.createElementNS(SVG_URI, "rect");
+    grayRect.setAttributeNS(null, "class", "gray-rect");
+    grayRect.setAttributeNS(null, "x", 0);
+    grayRect.setAttributeNS(null, "y", 0);
+    grayRect.setAttributeNS(null, "width", 600);
+    grayRect.setAttributeNS(null, "height", 400);
+
+    grayRect.addEventListener('click', innerEvent => {
+      let f = $('.foreigner');
+      let gr = $('.gray-rect');
+      let ip = $('.edge-weight-input');
+
+      f.parentNode.removeChild(f);
+      gr.parentNode.removeChild(gr);
+
+      E.edge.edgeWeight = Math.min(999999999, Math.max(0, ip.value));
+      updateEdgeSvg(E.edge);
+
+      innerEvent.stopPropagation();
+    });
+
+    foreigner.appendChild(input);
+    svg.appendChild(grayRect);
+    svg.appendChild(foreigner);
+
+    // focus and push cursor to the end
+    input.focus();
+    let tmpStr = input.value;
+    input.value = '';
+    input.value = tmpStr;
 
     event.stopPropagation();
   };
@@ -491,7 +539,8 @@ let toggleEdgeWeights = () => {
 };
 
 let addEdge = (v, isBidirected) => {
-  let edge = Edge(v, edgeIdSpeficier++, isBidirected);
+  let edgeWeight = edgeIdSpeficier % 5 + 1;
+  let edge = Edge(v, edgeIdSpeficier++, isBidirected, edgeWeight);
   edges.push(edge);
   addEdgeToSvg(edge);
   return edge;
@@ -499,7 +548,8 @@ let addEdge = (v, isBidirected) => {
 
 let addEdge2v = (v1, v2, isBidirected) => {
   // strictly dev use only
-  let edge = Edge2v(v1, v2, edgeIdSpeficier++, isBidirected);
+  let edgeWeight = edgeIdSpeficier % 5 + 1;
+  let edge = Edge2v(v1, v2, edgeIdSpeficier++, isBidirected, edgeWeight);
   edges.push(edge);
   addEdgeToSvg(edge);
   return edge;
@@ -535,6 +585,8 @@ let updateEdgeSvg = (e) => {
       if (head) head.setAttributeNS(null, 'transform', "translate("+E.xh+","+E.yh+") rotate("+E.ah+")");
       if (tail) tail.setAttributeNS(null, 'transform', "translate("+E.xt+","+E.yt+") rotate("+E.at+")");
       if (edgeweight) edgeweight.setAttributeNS(null, 'transform', "translate("+E.xw+","+E.yw+") rotate("+E.aw+")");
+
+      edgeweight.textContent = e.edgeWeight;
 
       break;
     }
@@ -646,6 +698,8 @@ let svgMouseMoveListener = (e) => {
 };
 
 let svgClickListener = (e) => {
+  if ($('.edge-weight-input')) return;
+
   let loc = getSvgLoc(e);
   let v = isOverVertex(loc.x, loc.y);
 
@@ -849,7 +903,16 @@ let addDocumentEventListeners = () => {
     if (e.ctrlKey && e.keyCode == 89) {
       redo();
     }
+    if ($('.edge-weight-input') && e.keyCode == 13) {
+      $('.gray-rect').dispatchEvent(new Event('click'));
+    }
   });
+};
+
+let setup = () => {
+  addDocumentEventListeners();
+  addSvgEventListeners();
+  loadTestGraph();
 };
 
 /* undo/redo feature */
@@ -870,7 +933,7 @@ let copyVertex = (v) => {
 
 let copyEdge = (e) => {
   if (!e) return null;
-  return Edge2v(getVertex(e.v1), getVertex(e.v2), e.id, e.isBidirected);
+  return Edge2v(getVertex(e.v1), getVertex(e.v2), e.id, e.isBidirected, e.edgeWeight);
 };
 
 let getState = () => {
@@ -1085,6 +1148,4 @@ let bfs = () => {
   play_pause();
 };
 
-addDocumentEventListeners();
-addSvgEventListeners();
-loadTestGraph();
+setup();
