@@ -450,7 +450,7 @@ let addEdgeToSvg = (e) => {
 
   getSvgEdges().appendChild(group);
   group.addEventListener('contextmenu', deleteEdgeListener(e));
-  edgeweight.addEventListener('click', edgeWeightUIOnClickEvent(E));
+  edgeweight.addEventListener('click', edgeWeightUiOnClickEvent(E));
 };
 
 let edgeWeightUiOnClickEvent = (E) => {
