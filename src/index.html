@@ -25,7 +25,8 @@
       <div>
         <button type="button" onclick="resetButton()">Reset</button>
       </div>
-      <button type="button" onclick="loadTestGraph()">Load Test Graph</button>
+      <button type="button" onclick="loadTestGraph1()">Load Test Graph 1</button>
+      <button type="button" onclick="loadTestGraph2()">Load Test Graph 2</button>
       <div>
         <button type="button" onclick="loadSampleGraph1()">Load</button>
         <label for="quantity">Complete Binary Tree of height H:</label>
@@ -60,6 +61,11 @@
         <button type="button" onclick="bfs()">Run</button>
         <label for="quantity">Run <i style="background-color:#b0b0ff;">Breadth-First Search</i> on source Vertex, S:</label>
         <input type="number" id="quantity-7" name="quantity" value="0" style="width: 30px;">
+      </div>
+      <div>
+        <button type="button" onclick="dijkstra()">Run</button>
+        <label for="quantity">Run <i style="background-color:#82E0AA;">Dijkstra's Algorithm</i> on source Vertex, S:</label>
+        <input type="number" id="quantity-8" name="quantity" value="0" style="width: 30px;">
       </div>
       <br>
       <br>
@@ -97,6 +103,7 @@
 <!-- partial -->
 <script src="./anime.min.js"></script>
 <script src="./animations.js"></script>
+<script src="./algos.js"></script>
 <script src="./script.js"></script>
 
 </body>

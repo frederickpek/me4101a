@@ -1,4 +1,5 @@
 let VERTEX_RADIUS = 14;
+let VERTEX_DIST_Y_OFFSET = VERTEX_RADIUS + 6;
 let SVG_URI = "http://www.w3.org/2000/svg";
 
 let vertices = [];
@@ -126,6 +127,11 @@ let updateVertexLoc = (v, x, y) => {
         updateEdgeSvg(edge);
       }
 
+      let dist = getVertexDist(vertex);
+      if (dist) {
+        dist.setAttributeNS(null, 'x', v.x);
+        dist.setAttributeNS(null, 'y', v.y + VERTEX_DIST_Y_OFFSET);
+      }
     }
   }
 };
@@ -707,6 +713,7 @@ let svgClickListener = (e) => {
   if (!v) {
     if (!currEdge) {
       save();
+      resetTraversal();
       addVertex(loc.x, loc.y);
     } else {
       deleteCurrEdge();
@@ -718,6 +725,7 @@ let svgClickListener = (e) => {
   /* start edge creation */
   if (!currEdge) {
     save();
+    resetTraversal();
     let edge = addEdge(v, isBidirectedEdge());
     currEdge = edge.id;
     return;
@@ -849,7 +857,38 @@ let loadRandomGraph = () => {
   }
 };
 
-let loadTestGraph = () => {
+let loadTestGraph1 = () => {
+  save();
+  reset();
+
+  let v0 = addVertex(100, 200);
+  let v1 = addVertex(200, 400/3);
+  let v2 = addVertex(200, 400*2/3);
+  let v3 = addVertex(300, 400/6);
+  let v4 = addVertex(300, 200);
+  let v5 = addVertex(300, 400*5/6);
+  let v6 = addVertex(400, 400/3);
+  let v7 = addVertex(400, 400*2/3);
+  let v8 = addVertex(500, 200);
+  let v9 = addVertex(450, 400*11/12);
+  let v10 = addVertex(550, 400*11/12);
+  
+  addEdge2v(v0, v1, true);
+  addEdge2v(v1, v3, true);
+  addEdge2v(v3, v6, true);
+  addEdge2v(v6, v8, true);
+  addEdge2v(v8, v7, true);
+  addEdge2v(v7, v5, true);
+  addEdge2v(v5, v2, true);
+  addEdge2v(v2, v0, true);
+  addEdge2v(v1, v4, true);
+  addEdge2v(v4, v6, true);
+  addEdge2v(v7, v4, true);
+  addEdge2v(v4, v2, true);
+  addEdge2v(v9, v10, true);
+};
+
+let loadTestGraph2 = () => {
   save();
   reset();
 
@@ -912,7 +951,7 @@ let addDocumentEventListeners = () => {
 let setup = () => {
   addDocumentEventListeners();
   addSvgEventListeners();
-  loadTestGraph();
+  loadTestGraph1();
 };
 
 /* undo/redo feature */
@@ -998,154 +1037,6 @@ let load = (state) => {
   for (let e of edges) {
     addEdgeToSvg(e);
   }
-};
-
-/* graph algos */
-
-let resetTraversal = () => {
-  clearChild(getSvgVertices());
-  clearChild(getSvgEdges());
-
-  for (let vertex of vertices) {
-    addVertexToSvg(vertex);
-  }
-  for (let edge of edges) {
-    addEdgeToSvg(edge);
-  }
-
-  resetAnimations();
-};
-
-let dfs = () => {
-  resetTraversal();
-
-  let S = parseInt(document.getElementById("quantity-5").value);
-  let n = vertices.length;
-
-  let E = {};
-  for (let vertex of vertices) {
-    E[vertex.id] = {};
-  }
-  for (let edge of edges) {
-    E[edge.v1][edge.v2] = edge;
-    if (edge.isBidirected) {
-      E[edge.v2][edge.v1] = edge;
-    }
-  }
-
-  let vis = {};
-  for (let vertex of vertices) {
-    vis[vertex.id] = false;
-  }
-
-  let body = {};
-  let svgVertices = getSvgVertices();
-  for (let svgVertex of svgVertices.children) {
-    body[svgVertex.id] = getVertexBody(svgVertex);
-  }
-
-  let edge = {};
-  let svgEdges = getSvgEdges();
-  for (let svgEdge of svgEdges.children) {
-    edge[svgEdge.id] = svgEdge;
-  }
-
-  let DFS = (u, p) => {
-    vis[u] = true;
-    addVertexAnimation1(body[u], 300);
-    for (let vertex of vertices) {
-      let v = vertex.id;
-      if (E[u][v] == null) continue;
-      if (!vis[v]) {
-        addEdgeAnimation1(edge[E[u][v].id], 300);
-        DFS(v, u);
-        addEdgeAnimation3(edge[E[u][v].id], 300);
-        addVertexAnimation3(body[u], 300);
-      } else if (v!=p) {
-        addEdgeAnimation2(edge[E[u][v].id], 300);
-      }
-    }
-    addVertexAnimation2(body[u], 300);
-  };
-
-  seqReverse.push(null);
-  DFS(S, -1);
-  seqForward.push(null);
-
-  progress.max = seqForward.length-1;
-  play_pause();
-};
-
-let bfs = () => {
-  resetTraversal();
-
-  let S = parseInt(document.getElementById("quantity-7").value);
-  let n = vertices.length;
-
-  let E = {};
-  for (let vertex of vertices) {
-    E[vertex.id] = {};
-  }
-  for (let edge of edges) {
-    E[edge.v1][edge.v2] = edge;
-    if (edge.isBidirected) {
-      E[edge.v2][edge.v1] = edge;
-    }
-  }
-
-  let vis = {};
-  for (let vertex of vertices) {
-    vis[vertex.id] = false;
-  }
-
-  let body = {};
-  let svgVertices = getSvgVertices();
-  for (let svgVertex of svgVertices.children) {
-    body[svgVertex.id] = getVertexBody(svgVertex);
-  }
-
-  let edge = {};
-  let svgEdges = getSvgEdges();
-  for (let svgEdge of svgEdges.children) {
-    edge[svgEdge.id] = svgEdge;
-  }
-
-  let BFS = (source) => {
-    let selectedE = {};
-    vis[source] = true;
-    let queue = [source];
-    addVertexAnimation1(body[source], 300);
-
-    while (queue.length) {
-      let q = [];
-      while (queue.length) {
-        let u = queue.shift();
-        addVertexAnimation2(body[u], 300);
-        for (let vertex of vertices) {
-          let v = vertex.id;
-          if (!E[u][v]) continue;
-          if (selectedE[E[u][v].id]) continue;
-          if (vis[v]) {
-            addEdgeAnimation2(edge[E[u][v].id], 300);
-            continue;
-          }
-          q.push(v);
-          vis[v] = true;
-          selectedE[E[u][v].id] = true;
-          addEdgeAnimation4(edge[E[u][v].id], 300);
-          addVertexAnimation1(body[v], 300);
-        }
-      }
-      queue = q;
-    }
-  };
-
-  seqReverse.push(null);
-  BFS(S);
-  seqForward.push(null);
-
-  progress.max = seqForward.length-1;
-  play_pause();
 };
 
 setup();

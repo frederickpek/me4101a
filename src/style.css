@@ -185,3 +185,10 @@ input:checked + .slider:before {
   fill: black;
   opacity: 0.5;
 }
+
+.dist {
+  font: bold 10px "Verdana", "Courier New";
+  text-anchor: middle;
+  dominant-baseline: central;
+  cursor: default;
+}
