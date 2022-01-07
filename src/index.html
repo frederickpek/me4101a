@@ -22,6 +22,7 @@
 <div style="width:100%;">
   <div style="float:left; width:35%; margin-left: 1%;">
     <fieldset>
+      <legend>Graph Creation Tools:</legend>
       <div>
         <button type="button" onclick="resetButton()">Reset</button>
       </div>
@@ -52,6 +53,7 @@
     <br>
     <br>
     <fieldset>
+      <legend>Algorithms:</legend>
       <div>
         <button type="button" onclick="dfs()">Run</button>
         <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
@@ -67,9 +69,13 @@
         <label for="quantity">Run <i style="background-color:#82E0AA;">Dijkstra's Algorithm</i> on source Vertex, S:</label>
         <input type="number" id="quantity-8" name="quantity" value="0" style="width: 30px;">
       </div>
+      <div>
+        <button type="button" onclick="bellmanford()">Run</button>
+        <label for="quantity">Run <i style="background-color:#FDFF7C;">Bellman-Ford Algorithm</i> on source Vertex, S:</label>
+        <input type="number" id="quantity-9" name="quantity" value="0" style="width: 30px;">
+      </div>
       <br>
-      <br>
-      <br>
+
       <input class="progress" type="range" value="0" min="0" max="0"></input><br>
       <div style="display: flex; justify-content: center;">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">

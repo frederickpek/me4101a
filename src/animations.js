@@ -1,8 +1,10 @@
 const BLACK = '#000000';
-const BLUE  = '#3498DB';
+const BLUE  = '#2196F3'; // 3498DB
+const DBLUE = '#1F6ED9'; // 2C81BA
 const LBLUE = '#85C1E9';
 const GREEN = '#0f9d57';
 const RED   = '#db4437';
+const DRED  = '#C63B2F';
 const WHITE = '#f0f0f0';
 const FADE  = '#e6e6e6';
 
@@ -24,22 +26,22 @@ const ARROW_HEIGHT_3 = 11;
 let progress = document.querySelector('.progress');
 
 let VERTEX_OBJ_1 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, fill: WHITE, dist: d }; };
-let VERTEX_OBJ_2 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: RED,   fill: RED,   dist: d }; };
+let VERTEX_OBJ_2 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DRED,  fill: DRED,  dist: d }; };
 let VERTEX_OBJ_3 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   fill: WHITE, dist: d }; };
 let VERTEX_OBJ_4 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, fill: GREEN, dist: d }; };
 let VERTEX_OBJ_5 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, fill: WHITE, dist: d }; };
-let VERTEX_OBJ_6 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: BLUE,  fill: BLUE,  dist: d }; };
+let VERTEX_OBJ_6 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE, fill: DBLUE, dist: d }; };
 let VERTEX_OBJ_7 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,  fill: WHITE, dist: d }; };
 let VERTEX_OBJ_8 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: BLUE,  fill: BLUE,  dist: d }; };
 let VERTEX_OBJ_9 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   fill: RED,   dist: d }; };
 
 let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
-let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: RED,   arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
+let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: DRED,   arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
 let EDGE_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 let EDGE_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: FADE,  arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 let EDGE_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
 let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, arrow_base: ARROW_BASE_3, arrow_height: ARROW_HEIGHT_3 }; };
-let EDGE_OBJ_7 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: BLUE,  arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
+let EDGE_OBJ_7 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE, arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
 let EDGE_OBJ_8 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,  arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 
 let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
@@ -65,7 +67,7 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
           let dist = getVertexDist(targetSvg);
           if (dist) {
             let d = animation.progress < 40 ? initialObj.dist : targetObj.dist;
-            dist.firstChild.textContent = d == inf ? "∞" : targetSvg.id == DIJKSTRA_SOURCE ? "Src:"+d : d;
+            dist.firstChild.textContent = d == inf ? "∞" : targetSvg.id == SSSP_SOURCE ? "Src:"+d : d;
           }
         }
       });
@@ -182,10 +184,34 @@ let addVertexAnimation7 = (targetSvg, dur, Di, Df) => {
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur));
 }
 
-//  blue + no fill -> blue + no fill (for when relaxing a relaxed vertex)
+// blue + no fill -> blue + no fill (for when relaxing a relaxed vertex)
 let addVertexAnimation8 = (targetSvg, dur, Di, Df) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur));
+}
+
+// normal -> blue + fill
+let addVertexAnimation9 = (targetSvg, dur, Di, Df) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur));
+}
+
+// blue + fill -> blue + fill
+let addVertexAnimation10 = (targetSvg, dur, Di, Df) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_8(Di)], dur));
+}
+
+// red + fill -> blue + fill
+let addVertexAnimation11 = (targetSvg, dur, Di, Df) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_9(Di)], dur));
+}
+
+// red + fill -> red + fill
+let addVertexAnimation12 = (targetSvg, dur, Di, Df) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_9(Di)], dur));
 }
 
 // normal to blue
@@ -218,6 +244,18 @@ let addEdgeAnimation9 = (targetSvg, dur) => {
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
 }
 
+// fade to blue with blue transition
+let addEdgeAnimation10 = (targetSvg, dur) => {
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_4()], dur));
+}
+
+// blue to blue with blue transition
+let addEdgeAnimation11 = (targetSvg, dur) => {
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
+}
+
 let DOUBLE_EDGE_OBJ_1 = () => { return { 
     stroke_width1: STROKE_WIDTH_1, stroke1: BLACK, arrow_base1: ARROW_BASE_1, arrow_height1: ARROW_HEIGHT_1,
     stroke_width2: STROKE_WIDTH_1, stroke2: BLUE,  arrow_base2: ARROW_BASE_1, arrow_height2: ARROW_HEIGHT_1
@@ -231,6 +269,11 @@ let DOUBLE_EDGE_OBJ_2 = () => { return {
 let DOUBLE_EDGE_OBJ_3 = () => { return { 
     stroke_width1: STROKE_WIDTH_1, stroke1: BLUE,  arrow_base1: ARROW_BASE_1, arrow_height1: ARROW_HEIGHT_1,
     stroke_width2: STROKE_WIDTH_1, stroke2: FADE,  arrow_base2: ARROW_BASE_1, arrow_height2: ARROW_HEIGHT_1
+  };};
+
+let DOUBLE_EDGE_OBJ_4 = () => { return { 
+    stroke_width1: STROKE_WIDTH_1, stroke1: FADE,  arrow_base1: ARROW_BASE_1, arrow_height1: ARROW_HEIGHT_1,
+    stroke_width2: STROKE_WIDTH_1, stroke2: BLUE,  arrow_base2: ARROW_BASE_1, arrow_height2: ARROW_HEIGHT_1
   };};
 
 let generateDoubleEdgeAnime = (targetSvg1, targetSvg2, initialObj, doubleTargetObjs, dur) => {
@@ -300,6 +343,13 @@ let generateDoubleEdgeAnime = (targetSvg1, targetSvg2, initialObj, doubleTargetO
 let addDoubleEdgeAnimation1 = (targetSvg1, targetSvg2, dur) => {
   seqForward.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_1(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_3()], dur));
   seqReverse.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_3(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_1()], dur));
+};
+
+// targetSvg1, fade to blue
+// targetSvg2, blue to fade with blue transition
+let addDoubleEdgeAnimation2 = (targetSvg1, targetSvg2, dur) => {
+  seqForward.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_4(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_3()], dur));
+  seqReverse.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_3(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_4()], dur));
 };
 
 let resetAnimations = () => {
