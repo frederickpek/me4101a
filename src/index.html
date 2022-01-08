@@ -20,9 +20,9 @@
 <br>
 
 <div style="width:100%;">
-  <div style="float:left; width:35%; margin-left: 1%;">
+  <div class="left-panel" style="float:left; width:35%; margin-left: 1%;">
     <fieldset>
-      <legend>Graph Creation Tools:</legend>
+      <legend>Graph Creation Tools</legend>
       <div>
         <button type="button" onclick="resetButton()">Reset</button>
       </div>
@@ -50,10 +50,8 @@
         <input type="number" id="quantity-4" name="quantity" min="1" max="10" value="5" style="width: 30px;" oninput="loadRandomGraph()">
       </div>
     </fieldset>
-    <br>
-    <br>
     <fieldset>
-      <legend>Algorithms:</legend>
+      <legend>Algorithms</legend>
       <div>
         <button type="button" onclick="dfs()">Run</button>
         <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>

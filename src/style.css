@@ -192,3 +192,19 @@ input:checked + .slider:before {
   dominant-baseline: central;
   cursor: default;
 }
+
+fieldset {
+  margin: 20px;
+}
+
+.active-line {
+  background-color: #6BE796;
+}
+
+.code {
+  font: bold 16px "Courier New";
+}
+
+.function-def {
+  text-decoration: underline;
+}

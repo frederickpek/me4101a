@@ -1,12 +1,13 @@
-const BLACK = '#000000';
-const BLUE  = '#2196F3'; // 3498DB
-const DBLUE = '#1F6ED9'; // 2C81BA
-const LBLUE = '#85C1E9';
-const GREEN = '#0f9d57';
-const RED   = '#db4437';
-const DRED  = '#C63B2F';
-const WHITE = '#f0f0f0';
-const FADE  = '#e6e6e6';
+const BLACK  = '#000000';
+const BLUE   = '#2196F3';
+const DBLUE  = '#1F6ED9';
+const LBLUE  = '#85C1E9';
+const GREEN  = '#0f9d57';
+const DGREEN = '#00864F';
+const RED    = '#db4437';
+const DRED   = '#C63B2F';
+const WHITE  = '#f0f0f0';
+const FADE   = '#e6e6e6';
 
 const STROKE_WIDTH_1 = 1.5;
 const STROKE_WIDTH_2 = 4;
@@ -25,18 +26,18 @@ const ARROW_HEIGHT_3 = 11;
 
 let progress = document.querySelector('.progress');
 
-let VERTEX_OBJ_1 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, fill: WHITE, dist: d }; };
-let VERTEX_OBJ_2 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DRED,  fill: DRED,  dist: d }; };
-let VERTEX_OBJ_3 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   fill: WHITE, dist: d }; };
-let VERTEX_OBJ_4 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, fill: GREEN, dist: d }; };
-let VERTEX_OBJ_5 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, fill: WHITE, dist: d }; };
-let VERTEX_OBJ_6 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE, fill: DBLUE, dist: d }; };
-let VERTEX_OBJ_7 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,  fill: WHITE, dist: d }; };
-let VERTEX_OBJ_8 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: BLUE,  fill: BLUE,  dist: d }; };
-let VERTEX_OBJ_9 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   fill: RED,   dist: d }; };
+let VERTEX_OBJ_1 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK,  fill: WHITE,  dist: d }; };
+let VERTEX_OBJ_2 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DRED,   fill: DRED,   dist: d }; };
+let VERTEX_OBJ_3 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,    fill: RED,    dist: d }; };
+let VERTEX_OBJ_4 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DGREEN, fill: DGREEN, dist: d }; };
+let VERTEX_OBJ_5 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN,  fill: GREEN,  dist: d }; };
+let VERTEX_OBJ_6 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE,  fill: DBLUE,  dist: d }; };
+let VERTEX_OBJ_7 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,   fill: WHITE,  dist: d }; };
+let VERTEX_OBJ_8 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: BLUE,   fill: BLUE,   dist: d }; };
+let VERTEX_OBJ_9 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,    fill: RED,    dist: d }; };
 
 let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
-let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: DRED,   arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
+let EDGE_OBJ_2 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: DRED,  arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
 let EDGE_OBJ_3 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,   arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 let EDGE_OBJ_4 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: FADE,  arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 let EDGE_OBJ_5 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: GREEN, arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
@@ -117,143 +118,187 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
 }
 
 // normal to red
-let addVertexAnimation1 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation1 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur));
+  seqLine.push(lines);
 }
 
 // red to green
-let addVertexAnimation2 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation2 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_3(Di)], dur));
+  seqLine.push(lines);
 }
 
 // red to red
-let addVertexAnimation3 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation3 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_3(Di)], dur));
+  seqLine.push(lines);
 }
 
 // normal to green
-let addVertexAnimation4 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation4 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_1(Di)], dur));
+  seqLine.push(lines);
 }
 
 // normal to red
-let addEdgeAnimation1 = (targetSvg, dur) => {
+let addEdgeAnimation1 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_2(), EDGE_OBJ_3()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_2(), EDGE_OBJ_1()], dur));
+  seqLine.push(lines);
 }
 
 // normal to fade with red transition
-let addEdgeAnimation2 = (targetSvg, dur) => {
+let addEdgeAnimation2 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_1()], dur));
+  seqLine.push(lines);
 }
 
 // red to green
-let addEdgeAnimation3 = (targetSvg, dur) => {
+let addEdgeAnimation3 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_3()], dur));
+  seqLine.push(lines);
 }
 
 // normal to green
-let addEdgeAnimation4 = (targetSvg, dur) => {
+let addEdgeAnimation4 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_1()], dur));
+  seqLine.push(lines);
 }
 
 /* animations pertaining to dijstra's */
 
 // normal -> blue + no fill
-let addVertexAnimation5 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation5 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur));
+  seqLine.push(lines);
 }
 
 // blue + no fill -> blue + fill
-let addVertexAnimation6 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation6 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur));
+  seqLine.push(lines);
 }
 
 // normal -> red + fill
-let addVertexAnimation7 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation7 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur));
+  seqLine.push(lines);
 }
 
 // blue + no fill -> blue + no fill (for when relaxing a relaxed vertex)
-let addVertexAnimation8 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation8 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur));
+  seqLine.push(lines);
 }
 
 // normal -> blue + fill
-let addVertexAnimation9 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation9 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur));
+  seqLine.push(lines);
 }
 
 // blue + fill -> blue + fill
-let addVertexAnimation10 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation10 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_8(Di)], dur));
+  seqLine.push(lines);
 }
 
 // red + fill -> blue + fill
-let addVertexAnimation11 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation11 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_9(Di)], dur));
+  seqLine.push(lines);
 }
 
 // red + fill -> red + fill
-let addVertexAnimation12 = (targetSvg, dur, Di, Df) => {
+let addVertexAnimation12 = (targetSvg, dur, Di, Df, lines) => {
   seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur));
   seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_9(Di)], dur));
+  seqLine.push(lines);
 }
 
 // normal to blue
-let addEdgeAnimation5 = (targetSvg, dur) => {
+let addEdgeAnimation5 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_1()], dur));
+  seqLine.push(lines);
 }
 
 // normal to fade with blue transition
-let addEdgeAnimation6 = (targetSvg, dur) => {
+let addEdgeAnimation6 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_7(), EDGE_OBJ_4()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_1()], dur));
+  seqLine.push(lines);
 }
 
 // fade to fade with blue transition
-let addEdgeAnimation7 = (targetSvg, dur) => {
+let addEdgeAnimation7 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_4()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_4()], dur));
+  seqLine.push(lines);
 }
 
 // fade to fade with red transition
-let addEdgeAnimation8 = (targetSvg, dur) => {
+let addEdgeAnimation8 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
+  seqLine.push(lines);
 }
 
 // blue to fade with blue transition
-let addEdgeAnimation9 = (targetSvg, dur) => {
+let addEdgeAnimation9 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_4()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
+  seqLine.push(lines);
 }
 
 // fade to blue with blue transition
-let addEdgeAnimation10 = (targetSvg, dur) => {
+let addEdgeAnimation10 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_4()], dur));
+  seqLine.push(lines);
 }
 
 // blue to blue with blue transition
-let addEdgeAnimation11 = (targetSvg, dur) => {
+let addEdgeAnimation11 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_8(), [EDGE_OBJ_7(), EDGE_OBJ_8()], dur));
+  seqLine.push(lines);
+}
+
+// red to fade with red transition
+let addEdgeAnimation12 = (targetSvg, dur, lines) => {
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_3()], dur));
+  seqLine.push(lines);
+}
+
+// green to fade
+let addEdgeAnimation13 = (targetSvg, dur, lines) => {
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_4()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
+  seqLine.push(lines);
+}
+
+// fade to red
+let addEdgeAnimation14 = (targetSvg, dur, lines) => {
+  seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_4(), [EDGE_OBJ_2(), EDGE_OBJ_3()], dur));
+  seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_3(), [EDGE_OBJ_2(), EDGE_OBJ_4()], dur));
+  seqLine.push(lines);
 }
 
 let DOUBLE_EDGE_OBJ_1 = () => { return { 
@@ -340,17 +385,36 @@ let generateDoubleEdgeAnime = (targetSvg1, targetSvg2, initialObj, doubleTargetO
 
 // targetSvg1, normal to blue
 // targetSvg2, blue to fade with blue transition
-let addDoubleEdgeAnimation1 = (targetSvg1, targetSvg2, dur) => {
+let addDoubleEdgeAnimation1 = (targetSvg1, targetSvg2, dur, lines) => {
   seqForward.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_1(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_3()], dur));
   seqReverse.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_3(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_1()], dur));
+  seqLine.push(lines);
 };
 
 // targetSvg1, fade to blue
 // targetSvg2, blue to fade with blue transition
-let addDoubleEdgeAnimation2 = (targetSvg1, targetSvg2, dur) => {
+let addDoubleEdgeAnimation2 = (targetSvg1, targetSvg2, dur, lines) => {
   seqForward.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_4(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_3()], dur));
   seqReverse.push(generateDoubleEdgeAnime(targetSvg1, targetSvg2, DOUBLE_EDGE_OBJ_3(), [DOUBLE_EDGE_OBJ_2(), DOUBLE_EDGE_OBJ_4()], dur));
+  seqLine.push(lines);
 };
+
+let generateDummyAnime = (dur) => {
+  let animation = anime.timeline({
+      loop: false,
+      autoplay: false,
+      easing: "easeOutQuad",
+      duration: dur
+    });
+
+  return animation;
+}
+
+let addDummyAnimation = (dur, lines) => {
+  seqForward.push(generateDummyAnime(dur));
+  seqReverse.push(generateDummyAnime(dur));
+  seqLine.push(lines);
+}
 
 let resetAnimations = () => {
   progress.value = 0;
@@ -359,6 +423,7 @@ let resetAnimations = () => {
   seqIndex = 0;
   seqForward = [];
   seqReverse = [];
+  seqLine = [];
   pause();
   setButtonOpacities();
 }
@@ -397,6 +462,7 @@ let seqIndex = 0;
 let player = null;
 let seqForward = [];
 let seqReverse = [];
+let seqLine = [];
 let clickInterval = 600;
 
 let play = () => {
@@ -418,18 +484,21 @@ let reverse = () => {
   progress.value--;
   seqReverse[seqIndex].play();
   seqIndex--;
+  highlightLines(seqIndex == 0 ? [] : seqLine[seqIndex]);
 };
 
 let forward = () => {
   if (seqIndex == seqForward.length-1) return;
   progress.value++;
   seqForward[seqIndex].play();
+  highlightLines(seqLine[seqIndex]);
   seqIndex++;
 };
 
 let seek = (index) => {
   if (seqForward.length == 0) return;
   seqIndex = index;
+  highlightLines(seqIndex == 0 ? [] : seqLine[seqIndex-1]);
 
   for (let i = 0; i < index; i++) {
     if (seqForward[i]) {
@@ -482,4 +551,13 @@ let reverseButton = () => {
 let forwardButton = () => {
   if (player) return;
   forward();
+};
+
+let highlightLines = (lines) => {
+  if (!lines) return;
+  let codes = document.getElementsByClassName("code");
+  for (let code of codes) code.classList.remove("active-line");
+  for (let line of lines) {
+    $(".line-"+line).classList.add("active-line");
+  }
 };

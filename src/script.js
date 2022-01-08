@@ -552,9 +552,10 @@ let addEdge = (v, isBidirected) => {
   return edge;
 };
 
-let addEdge2v = (v1, v2, isBidirected) => {
+let addEdge2v = (v1, v2, isBidirected, ew) => {
   // strictly dev use only
   let edgeWeight = edgeIdSpeficier % 5 + 1;
+  if (ew) edgeWeight = ew;
   let edge = Edge2v(v1, v2, edgeIdSpeficier++, isBidirected, edgeWeight);
   edges.push(edge);
   addEdgeToSvg(edge);
@@ -884,7 +885,7 @@ let loadTestGraph1 = () => {
   addEdge2v(v1, v4, true);
   addEdge2v(v4, v6, true);
   addEdge2v(v7, v4, true);
-  addEdge2v(v4, v2, true);
+  addEdge2v(v4, v2, true, 2);
   addEdge2v(v9, v10, true);
 };
 
