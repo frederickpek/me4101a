@@ -505,7 +505,7 @@ let edgeWeightUiOnClickEvent = (edgeId) => {
       f.parentNode.removeChild(f);
       gr.parentNode.removeChild(gr);
 
-      E.edge.edgeWeight = Math.min(999999999, Math.max(0, ip.value));
+      E.edge.edgeWeight = Math.min(1e9-1, Math.max(0, ip.value));
       updateEdgeSvg(E.edge);
 
       innerEvent.stopPropagation();

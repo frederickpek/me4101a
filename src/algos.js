@@ -4,6 +4,9 @@ let resetTraversal = () => {
   clearChild(getSvgVertices());
   clearChild(getSvgEdges());
 
+  let olv = $('.ol-vertices');
+  if (olv) olv.parentNode.removeChild(olv);
+
   for (let vertex of vertices) {
     addVertexToSvg(vertex);
   }
@@ -185,6 +188,77 @@ let addDistances = () => {
   }
 };
 
+let xpos = [], ypos = [];
+let addOrderedListVertices = () => {
+  let olVertices = document.createElementNS(SVG_URI, 'g');
+  olVertices.setAttributeNS(null, 'class', "ol-vertices");
+
+  /* schema for positioning vertices */
+  let n = vertices.length;
+  let y0 = 1.5 * VERTEX_RADIUS;
+  let x0 = 1.5 * VERTEX_RADIUS;
+
+  /* forgive me */
+  let dx = n < 12 ? (600-3*VERTEX_RADIUS)/10 : (600-3*VERTEX_RADIUS)/(n-1);
+
+  xpos = [], ypos = [];
+  for (let i = 0; i < n; i++) {
+    xpos.push(x0 + dx * i);
+    ypos.push(y0);
+  }
+
+  for (let i = 0; i < n; i++) {
+    let v = vertices[i];
+    let group = document.createElementNS(SVG_URI, 'g');
+    group.setAttributeNS(null, 'class', "vertex");  // consider changing to style differently
+    group.setAttributeNS(null, 'id', v.id);
+    
+    let body = document.createElementNS(SVG_URI, 'circle');
+    body.setAttributeNS(null, 'class', "body");
+    body.setAttributeNS(null, 'cx', xpos[i]);
+    body.setAttributeNS(null, 'cy', y0);
+    body.setAttributeNS(null, 'r', VERTEX_RADIUS);
+    body.setAttributeNS(null, 'fill', WHITE);
+    body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
+    body.setAttributeNS(null, 'stroke', BLACK);
+
+    let label = document.createElementNS(SVG_URI, 'text');
+    label.setAttributeNS(null, 'class', "label");
+    label.setAttributeNS(null, 'x', xpos[i]);
+    label.setAttributeNS(null, 'y', y0);
+    let text = document.createTextNode(v.val);
+    label.appendChild(text);
+
+    let dist = document.createElementNS(SVG_URI, 'text');
+    dist.setAttributeNS(null, 'class', 'dist');
+    dist.setAttributeNS(null, 'x', xpos[i]);
+    dist.setAttributeNS(null, 'y', y0 + VERTEX_DIST_Y_OFFSET);
+    dist.setAttributeNS(null, 'fill', RED);
+    let dtext = document.createTextNode("∞");
+    dist.appendChild(dtext);
+
+    group.appendChild(dist);
+    group.appendChild(body);
+    group.appendChild(label);
+
+    olVertices.appendChild(group);
+  }
+
+  svg.appendChild(olVertices);
+};
+
+/*
+  The ordered list should be updated whenever a colour
+  change occurs for a vertex.
+  The same animation will apply to the vertex.
+*/
+let updateOrderedList = (ol) => {
+  ol.sort((u, v) => D[u] - D[v]);
+  out = [];
+  for (let u of ol) out.push([u, D[u]]);
+  console.log(out);
+};
+
 let SSSP_SOURCE = -1;
 let dijkstra = () => {
   resetTraversal();
@@ -241,6 +315,9 @@ let dijkstra = () => {
     D[source] = 0;
     p[source] = -1;
 
+    let ol = [];
+    for (let v of vertices) ol.push(v.id);
+
     while (pq.length) {
 
       let u = pq.sort((u, v) => D[u] - D[v]).shift(); // my awesome heap
@@ -291,6 +368,7 @@ let dijkstra = () => {
   };
 
   addDistances();
+  addOrderedListVertices();
 
   seqReverse.push(null);
   addDummyAnimation(300, [0,1,2,3])
