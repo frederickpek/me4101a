@@ -16,6 +16,9 @@ let resetTraversal = () => {
 
   resetAnimations();
   removePseudocode();
+
+  xpos = [], ypos = [];
+  svgOLVertices = {};
 };
 
 let dfs = () => {
@@ -189,6 +192,7 @@ let addDistances = () => {
 };
 
 let xpos = [], ypos = [];
+let svgOLVertices = {};
 let addOrderedListVertices = () => {
   let olVertices = document.createElementNS(SVG_URI, 'g');
   olVertices.setAttributeNS(null, 'class', "ol-vertices");
@@ -207,6 +211,7 @@ let addOrderedListVertices = () => {
     ypos.push(y0);
   }
 
+  svgOlVertices = {};
   for (let i = 0; i < n; i++) {
     let v = vertices[i];
     let group = document.createElementNS(SVG_URI, 'g');
@@ -242,6 +247,8 @@ let addOrderedListVertices = () => {
     group.appendChild(label);
 
     olVertices.appendChild(group);
+
+    svgOLVertices[v.id] = group;
   }
 
   svg.appendChild(olVertices);

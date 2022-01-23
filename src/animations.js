@@ -60,16 +60,21 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
         stroke: targetObj.stroke,
         stroke_width: targetObj.stroke_width,
         update: function () {
-          let body = getVertexBody(targetSvg);
-          body.setAttributeNS(null, 'fill', initialObj.fill);
-          body.setAttributeNS(null, 'stroke', initialObj.stroke);
-          body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
+          let updateSvg = (svgObj) => {
+            let body = getVertexBody(svgObj);
+            body.setAttributeNS(null, 'fill', initialObj.fill);
+            body.setAttributeNS(null, 'stroke', initialObj.stroke);
+            body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
 
-          let dist = getVertexDist(targetSvg);
-          if (dist) {
-            let d = animation.progress < 40 ? initialObj.dist : targetObj.dist;
-            dist.firstChild.textContent = d == inf ? "∞" : targetSvg.id == SSSP_SOURCE ? "Src:"+d : d;
+            let dist = getVertexDist(svgObj);
+            if (dist) {
+              let d = animation.progress < 40 ? initialObj.dist : targetObj.dist;
+              dist.firstChild.textContent = d == inf ? "∞" : targetSvg.id == SSSP_SOURCE ? "Src:"+d : d;
+            }
           }
+
+          updateSvg(targetSvg);
+          if (svgOLVertices[targetSvg.id]) updateSvg(svgOLVertices[targetSvg.id]);
         }
       });
   }
