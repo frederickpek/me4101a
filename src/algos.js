@@ -4,6 +4,9 @@ let resetTraversal = () => {
   clearChild(getSvgVertices());
   clearChild(getSvgEdges());
 
+  let olv = $('.ol-vertices');
+  if (olv) olv.parentNode.removeChild(olv);
+
   for (let vertex of vertices) {
     addVertexToSvg(vertex);
   }
@@ -13,6 +16,9 @@ let resetTraversal = () => {
 
   resetAnimations();
   removePseudocode();
+
+  xpos = [], ypos = [];
+  svgOLVertices = {};
 };
 
 let dfs = () => {
@@ -185,6 +191,87 @@ let addDistances = () => {
   }
 };
 
+let xpos = [], ypos = [];
+let svgOLVertices = {};
+let addOrderedListVertices = () => {
+  let olVertices = document.createElementNS(SVG_URI, 'g');
+  olVertices.setAttributeNS(null, 'class', "ol-vertices");
+
+  /* schema for positioning vertices */
+  let n = vertices.length;
+  let y0 = 1.5 * VERTEX_RADIUS;
+  let x0 = 1.5 * VERTEX_RADIUS;
+
+  /* forgive me */
+  let dx = n < 12 ? (600-3*VERTEX_RADIUS)/10 : (600-3*VERTEX_RADIUS)/(n-1);
+
+  xpos = [], ypos = [];
+  for (let i = 0; i < n; i++) {
+    xpos.push(x0 + dx * i);
+    ypos.push(y0);
+  }
+
+  svgOlVertices = {};
+  for (let i = 0; i < n; i++) {
+    let v = vertices[i];
+    let group = document.createElementNS(SVG_URI, 'g');
+    group.setAttributeNS(null, 'class', "vertex");  // consider changing to style differently
+    group.setAttributeNS(null, 'id', v.id);
+    
+    let body = document.createElementNS(SVG_URI, 'circle');
+    body.setAttributeNS(null, 'class', "body");
+    body.setAttributeNS(null, 'cx', xpos[i]);
+    body.setAttributeNS(null, 'cy', y0);
+    body.setAttributeNS(null, 'r', VERTEX_RADIUS);
+    body.setAttributeNS(null, 'fill', WHITE);
+    body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
+    body.setAttributeNS(null, 'stroke', BLACK);
+
+    let label = document.createElementNS(SVG_URI, 'text');
+    label.setAttributeNS(null, 'class', "label");
+    label.setAttributeNS(null, 'x', xpos[i]);
+    label.setAttributeNS(null, 'y', y0);
+    let text = document.createTextNode(v.val);
+    label.appendChild(text);
+
+    let dist = document.createElementNS(SVG_URI, 'text');
+    dist.setAttributeNS(null, 'class', 'dist');
+    dist.setAttributeNS(null, 'x', xpos[i]);
+    dist.setAttributeNS(null, 'y', y0 + VERTEX_DIST_Y_OFFSET);
+    dist.setAttributeNS(null, 'fill', RED);
+    let dtext = document.createTextNode("∞");
+    dist.appendChild(dtext);
+
+    group.appendChild(dist);
+    group.appendChild(body);
+    group.appendChild(label);
+
+    olVertices.appendChild(group);
+
+    svgOLVertices[v.id] = group;
+  }
+
+  svg.appendChild(olVertices);
+};
+
+/*
+  The ordered list should be updated whenever a colour
+  change occurs for a vertex.
+  The same animation will apply to the vertex.
+*/
+let updateOrderedList = (ol) => {
+  ol.sort((u, v) => D[u] - D[v]);
+  out = [];
+  for (let u of ol) out.push([u, D[u]]);
+  console.log(out);
+};
+
+let copyList = (list) => {
+  let ret = [];
+  for (let i of list) ret.push(i);
+  return ret;
+};
+
 let SSSP_SOURCE = -1;
 let dijkstra = () => {
   resetTraversal();
@@ -235,18 +322,25 @@ let dijkstra = () => {
     let p = {};
     let edgeParent = {};
     let pq = [];
-    for (let v of vertices) pq.push(v.id);
+    let ol = [];
+    for (let v of vertices) {
+      pq.push(v.id);
+      ol.push(v.id);
+    }
 
-    addVertexAnimation5(vertex[source], 300, D[source], 0, [5]);
+    let oi = copyList(ol);
+    let Di = D[source];
     D[source] = 0;
+    ol.sort((u, v) => D[u] - D[v]);
+    addVertexAnimation5(vertex[source], 300, Di, D[source], [5], oi, copyList(ol));
     p[source] = -1;
-
+    
     while (pq.length) {
 
       let u = pq.sort((u, v) => D[u] - D[v]).shift(); // my awesome heap
 
-      if (D[u] != inf) addVertexAnimation6(vertex[u], 300, D[u], D[u], [7,8]);
-      else addVertexAnimation7(vertex[u], 300, D[u], D[u], [7,8]);
+      if (D[u] != inf) addVertexAnimation6(vertex[u], 300, D[u], D[u], [7,8], copyList(ol), copyList(ol));
+      else addVertexAnimation7(vertex[u], 300, D[u], D[u], [7,8], copyList(ol), copyList(ol));
 
       for (let node of vertices) {
         let v = node.id;
@@ -259,9 +353,12 @@ let dijkstra = () => {
             faded[edgeParent[v].id] = true;
           } else addEdgeAnimation5(edge[E[u][v].id], 300, [10]);
 
-          if (D[v]==inf) addVertexAnimation5(vertex[v], 300, D[v], D[u] + E[u][v].edgeWeight, [11,12,13]);
-          else addVertexAnimation8(vertex[v], 300, D[v], D[u] + E[u][v].edgeWeight, [11,12,13]);
+          let oi = copyList(ol);
+          let Di = D[v];
           D[v] = D[u] + E[u][v].edgeWeight;
+          ol.sort((u, v) => D[u] - D[v]);
+          if (Di==inf) addVertexAnimation5(vertex[v], 300, Di, D[v], [11,12,13], oi, copyList(ol));
+          else addVertexAnimation8(vertex[v], 300, Di, D[v], [11,12,13], oi, copyList(ol));
           
           p[v] = u;
           edgeParent[v] = E[u][v];
@@ -291,6 +388,7 @@ let dijkstra = () => {
   };
 
   addDistances();
+  addOrderedListVertices();
 
   seqReverse.push(null);
   addDummyAnimation(300, [0,1,2,3])
