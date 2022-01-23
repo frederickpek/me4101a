@@ -33,7 +33,7 @@ let VERTEX_OBJ_4 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DGREE
 let VERTEX_OBJ_5 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN,  fill: GREEN,  dist: d }; };
 let VERTEX_OBJ_6 = (d) => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE,  fill: DBLUE,  dist: d }; };
 let VERTEX_OBJ_7 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,   fill: WHITE,  dist: d }; };
-let VERTEX_OBJ_8 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: BLUE,   fill: BLUE,   dist: d }; };
+let VERTEX_OBJ_8 = (d) => { return { stroke_width: STROKE_WIDTH_3, stroke: DBLUE,  fill: BLUE,   dist: d }; };
 let VERTEX_OBJ_9 = (d) => { return { stroke_width: STROKE_WIDTH_1, stroke: RED,    fill: RED,    dist: d }; };
 
 let EDGE_OBJ_1 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLACK, arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
