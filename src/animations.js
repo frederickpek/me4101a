@@ -45,7 +45,7 @@ let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, a
 let EDGE_OBJ_7 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE, arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
 let EDGE_OBJ_8 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,  arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 
-let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
+let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of) => {
   let animation = anime.timeline({
       targets: initialObj,
       loop: false,
@@ -74,7 +74,38 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur) => {
           }
 
           updateSvg(targetSvg);
-          if (svgOLVertices[targetSvg.id]) updateSvg(svgOLVertices[targetSvg.id]);
+          if (!oi || !of) return;
+
+          let olv = svgOLVertices[targetSvg.id];
+          updateSvg(olv);
+
+          let n = vertices.length;
+
+          let xposidx = {};
+          for (let i = 0; i < n; i++) xposidx[of[i]] = i;
+
+          for (let i = 0; i < n; i++) {
+            let v = svgOLVertices[oi[i]];
+
+            let xi = xpos[i];
+            let xf = xpos[xposidx[oi[i]]];
+            let m = (xf-xi)/100; // animation.progress.max = 100, presumably
+            let x = animation.progress * m + xi;
+            let y = ypos[0];
+
+            /* location changes */
+            let body = getVertexBody(v);
+            body.setAttributeNS(null, 'cx', x);
+            body.setAttributeNS(null, 'cy', y);
+
+            let label = getVertexLabel(v);
+            label.setAttributeNS(null, 'x', x);
+            label.setAttributeNS(null, 'y', y);
+
+            let dist = getVertexDist(v);
+            dist.setAttributeNS(null, 'x', x);
+            dist.setAttributeNS(null, 'y', y + VERTEX_DIST_Y_OFFSET);
+          }
         }
       });
   }
@@ -123,30 +154,86 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
 }
 
 // normal to red
-let addVertexAnimation1 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur));
+let addVertexAnimation1 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur, oi, of));
   seqLine.push(lines);
 }
 
 // red to green
-let addVertexAnimation2 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_3(Di)], dur));
+let addVertexAnimation2 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_3(Di)], dur, oi, of));
   seqLine.push(lines);
 }
 
 // red to red
-let addVertexAnimation3 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_3(Di)], dur));
+let addVertexAnimation3 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_3(Di)], dur, oi, of));
   seqLine.push(lines);
 }
 
 // normal to green
-let addVertexAnimation4 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_1(Di)], dur));
+let addVertexAnimation4 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_1(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// normal -> blue + no fill
+let addVertexAnimation5 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// blue + no fill -> blue + fill
+let addVertexAnimation6 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// normal -> red + fill
+let addVertexAnimation7 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// blue + no fill -> blue + no fill (for when relaxing a relaxed vertex)
+let addVertexAnimation8 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// normal -> blue + fill
+let addVertexAnimation9 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// blue + fill -> blue + fill
+let addVertexAnimation10 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_8(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// red + fill -> blue + fill
+let addVertexAnimation11 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_9(Di)], dur, oi, of));
+  seqLine.push(lines);
+}
+
+// red + fill -> red + fill
+let addVertexAnimation12 = (targetSvg, dur, Di, Df, lines, oi, of) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur, oi, of));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_9(Di)], dur, oi, of));
   seqLine.push(lines);
 }
 
@@ -175,64 +262,6 @@ let addEdgeAnimation3 = (targetSvg, dur, lines) => {
 let addEdgeAnimation4 = (targetSvg, dur, lines) => {
   seqForward.push(generateEdgeAnime(targetSvg, EDGE_OBJ_1(), [EDGE_OBJ_5(), EDGE_OBJ_6()], dur));
   seqReverse.push(generateEdgeAnime(targetSvg, EDGE_OBJ_6(), [EDGE_OBJ_5(), EDGE_OBJ_1()], dur));
-  seqLine.push(lines);
-}
-
-/* animations pertaining to dijstra's */
-
-// normal -> blue + no fill
-let addVertexAnimation5 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur));
-  seqLine.push(lines);
-}
-
-// blue + no fill -> blue + fill
-let addVertexAnimation6 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur));
-  seqLine.push(lines);
-}
-
-// normal -> red + fill
-let addVertexAnimation7 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur));
-  seqLine.push(lines);
-}
-
-// blue + no fill -> blue + no fill (for when relaxing a relaxed vertex)
-let addVertexAnimation8 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur));
-  seqLine.push(lines);
-}
-
-// normal -> blue + fill
-let addVertexAnimation9 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur));
-  seqLine.push(lines);
-}
-
-// blue + fill -> blue + fill
-let addVertexAnimation10 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_8(Di)], dur));
-  seqLine.push(lines);
-}
-
-// red + fill -> blue + fill
-let addVertexAnimation11 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_9(Di)], dur));
-  seqLine.push(lines);
-}
-
-// red + fill -> red + fill
-let addVertexAnimation12 = (targetSvg, dur, Di, Df, lines) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_9(Di)], dur));
   seqLine.push(lines);
 }
 

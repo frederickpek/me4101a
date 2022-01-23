@@ -266,6 +266,12 @@ let updateOrderedList = (ol) => {
   console.log(out);
 };
 
+let copyList = (list) => {
+  let ret = [];
+  for (let i of list) ret.push(i);
+  return ret;
+};
+
 let SSSP_SOURCE = -1;
 let dijkstra = () => {
   resetTraversal();
@@ -316,21 +322,25 @@ let dijkstra = () => {
     let p = {};
     let edgeParent = {};
     let pq = [];
-    for (let v of vertices) pq.push(v.id);
-
-    addVertexAnimation5(vertex[source], 300, D[source], 0, [5]);
-    D[source] = 0;
-    p[source] = -1;
-
     let ol = [];
-    for (let v of vertices) ol.push(v.id);
+    for (let v of vertices) {
+      pq.push(v.id);
+      ol.push(v.id);
+    }
 
+    let oi = copyList(ol);
+    let Di = D[source];
+    D[source] = 0;
+    ol.sort((u, v) => D[u] - D[v]);
+    addVertexAnimation5(vertex[source], 300, Di, D[source], [5], oi, copyList(ol));
+    p[source] = -1;
+    
     while (pq.length) {
 
       let u = pq.sort((u, v) => D[u] - D[v]).shift(); // my awesome heap
 
-      if (D[u] != inf) addVertexAnimation6(vertex[u], 300, D[u], D[u], [7,8]);
-      else addVertexAnimation7(vertex[u], 300, D[u], D[u], [7,8]);
+      if (D[u] != inf) addVertexAnimation6(vertex[u], 300, D[u], D[u], [7,8], copyList(ol), copyList(ol));
+      else addVertexAnimation7(vertex[u], 300, D[u], D[u], [7,8], copyList(ol), copyList(ol));
 
       for (let node of vertices) {
         let v = node.id;
@@ -343,9 +353,12 @@ let dijkstra = () => {
             faded[edgeParent[v].id] = true;
           } else addEdgeAnimation5(edge[E[u][v].id], 300, [10]);
 
-          if (D[v]==inf) addVertexAnimation5(vertex[v], 300, D[v], D[u] + E[u][v].edgeWeight, [11,12,13]);
-          else addVertexAnimation8(vertex[v], 300, D[v], D[u] + E[u][v].edgeWeight, [11,12,13]);
+          let oi = copyList(ol);
+          let Di = D[v];
           D[v] = D[u] + E[u][v].edgeWeight;
+          ol.sort((u, v) => D[u] - D[v]);
+          if (Di==inf) addVertexAnimation5(vertex[v], 300, Di, D[v], [11,12,13], oi, copyList(ol));
+          else addVertexAnimation8(vertex[v], 300, Di, D[v], [11,12,13], oi, copyList(ol));
           
           p[v] = u;
           edgeParent[v] = E[u][v];
