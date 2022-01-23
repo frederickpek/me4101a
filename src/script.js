@@ -863,16 +863,18 @@ let loadTestGraph1 = () => {
   reset();
 
   let v0 = addVertex(100, 200);
-  let v1 = addVertex(200, 400/3);
+  let v5 = addVertex(300, 400*5/6);
+  let v9 = addVertex(450, 400*11/12);
+  let v4 = addVertex(300, 200);
   let v2 = addVertex(200, 400*2/3);
   let v3 = addVertex(300, 400/6);
-  let v4 = addVertex(300, 200);
-  let v5 = addVertex(300, 400*5/6);
-  let v6 = addVertex(400, 400/3);
-  let v7 = addVertex(400, 400*2/3);
   let v8 = addVertex(500, 200);
-  let v9 = addVertex(450, 400*11/12);
+  let v6 = addVertex(400, 400/3);
+  let v1 = addVertex(200, 400/3);
   let v10 = addVertex(550, 400*11/12);
+  let v7 = addVertex(400, 400*2/3);
+
+
   
   addEdge2v(v0, v1, true);
   addEdge2v(v1, v3, true);
