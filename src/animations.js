@@ -45,7 +45,7 @@ let EDGE_OBJ_6 = () => { return { stroke_width: STROKE_WIDTH_3, stroke: GREEN, a
 let EDGE_OBJ_7 = () => { return { stroke_width: STROKE_WIDTH_2, stroke: DBLUE, arrow_base: ARROW_BASE_2, arrow_height: ARROW_HEIGHT_2 }; };
 let EDGE_OBJ_8 = () => { return { stroke_width: STROKE_WIDTH_1, stroke: BLUE,  arrow_base: ARROW_BASE_1, arrow_height: ARROW_HEIGHT_1 }; };
 
-let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of) => {
+let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of, algo) => {
   let animation = anime.timeline({
       targets: initialObj,
       loop: false,
@@ -55,57 +55,227 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of) => {
     });
 
   for (let targetObj of targetObjs) {
+    let dijkstrasUpdateFunction = () => {
+      let updateSvg = (svgObj) => {
+        let body = getVertexBody(svgObj);
+        body.setAttributeNS(null, 'fill', initialObj.fill);
+        body.setAttributeNS(null, 'stroke', initialObj.stroke);
+        body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
+
+        let dist = getVertexDist(svgObj);
+        if (dist) {
+          let d = animation.progress < 40 ? initialObj.dist : targetObj.dist;
+          dist.firstChild.textContent = d == inf ? "∞" : targetSvg.id == SSSP_SOURCE ? "Src:"+d : d;
+        }
+      }
+
+      updateSvg(targetSvg);
+      if (!oi || !of) return;
+
+      if (!svgOLVertices) return;
+
+      let olv = svgOLVertices[targetSvg.id];
+      if (!olv) return;
+      updateSvg(olv);
+
+      let n = vertices.length;
+
+      let yposidx = {};
+      for (let i = 0; i < n; i++) yposidx[of[i]] = i;
+
+      for (let i = 0; i < n; i++) {
+        let v = svgOLVertices[oi[i]];
+        if (!v) return;
+
+        let yi = ypos[i];
+        let yf = ypos[yposidx[oi[i]]];
+        let m = (yf-yi)/100; // animation.progress.max = 100, presumably
+        if (m == 0) continue;
+        let y = Math.min(Math.pow(animation.progress+1, 1.2), 100) * m + yi;
+        let x = xpos[i];
+
+        /* location changes */
+        let body = getVertexBody(v);
+        body.setAttributeNS(null, 'cx', x);
+        body.setAttributeNS(null, 'cy', y);
+
+        let label = getVertexLabel(v);
+        label.setAttributeNS(null, 'x', x);
+        label.setAttributeNS(null, 'y', y);
+
+        let dist = getVertexDist(v);
+        dist.setAttributeNS(null, 'x', x + VERTEX_DIST_X_OFFSET);
+        dist.setAttributeNS(null, 'y', y);
+      }
+    };
+
+    let dfsUpdateFunction = () => {
+      let updateSvg = (svgObj) => {
+        let body = getVertexBody(svgObj);
+        body.setAttributeNS(null, 'fill', initialObj.fill);
+        body.setAttributeNS(null, 'stroke', initialObj.stroke);
+        body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
+      }
+
+      updateSvg(targetSvg);
+      let olv = svgOLVertices[targetSvg.id];
+      if (!olv) return;
+      updateSvg(olv);
+
+      // oi -> vertices that are in the stack initially
+      // of -> vertices that are in the stack finally
+      if (oi.length == of.length) return;
+
+      const {_x, _y, width, height} = $("#linear-data-structure").viewBox.baseVal;
+      let n = vertices.length;
+      let y0 = height - 1.5 * VERTEX_RADIUS;
+      let x0 = width / 2;
+
+      // 1. gen x,y-posInitial with oi
+      let dy = 2.5 * VERTEX_RADIUS;
+      if (oi.length > Math.floor(height/dy)) {
+        dy = (height - 2 * 1.5 * VERTEX_RADIUS) / (oi.length-1);
+      }
+
+      let xposi = {}, yposi = {};
+      for (let i = 0; i < oi.length; i++) {
+        xposi[oi[i]] = x0;
+        yposi[oi[i]] = y0 - dy * i;
+      }
+
+      for (v of vertices) {
+        if (xposi[v.id] || yposi[v.id]) continue;
+        xposi[v.id] = x0;
+        yposi[v.id] = - VERTEX_RADIUS * 2.5;
+      }
+
+      // 2. gen x,y-posFinal with of
+      dy = 2.5 * VERTEX_RADIUS;
+      if (of.length > Math.floor(height/dy)) {
+        dy = (height - 2 * 1.5 * VERTEX_RADIUS) / (of.length-1);
+      }
+
+      let xposf = {}, yposf = {};
+      for (let i = 0; i < of.length; i++) {
+        xposf[of[i]] = x0;
+        yposf[of[i]] = y0 - dy * i;
+      }
+
+      for (v of vertices) {
+        if (xposf[v.id] || yposf[v.id]) continue;
+        xposf[v.id] = x0;
+        yposf[v.id] = - VERTEX_RADIUS * 2.5;
+      }
+
+      // 3. interpolate
+      for (vertex of vertices) {
+        let v = svgOLVertices[vertex.id];
+        if (!v) return;
+
+        let m = (yposf[v.id] - yposi[v.id])/100; // animation.progress.max = 100, presumably
+        if (m == 0) continue;
+        let y = Math.min(Math.pow(animation.progress+1, 1.2), 100) * m + yposi[v.id];
+        let x = x0;
+
+        /* location changes */
+        let body = getVertexBody(v);
+        body.setAttributeNS(null, 'cx', x);
+        body.setAttributeNS(null, 'cy', y);
+
+        let label = getVertexLabel(v);
+        label.setAttributeNS(null, 'x', x);
+        label.setAttributeNS(null, 'y', y);
+      }
+    };
+
+    let bfsUpdateFunction = () => {
+      let updateSvg = (svgObj) => {
+        let body = getVertexBody(svgObj);
+        body.setAttributeNS(null, 'fill', initialObj.fill);
+        body.setAttributeNS(null, 'stroke', initialObj.stroke);
+        body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
+      }
+
+      updateSvg(targetSvg);
+      let olv = svgOLVertices[targetSvg.id];
+      if (!olv) return;
+      updateSvg(olv);
+
+      // oi -> vertices that are in the stack initially
+      // of -> vertices that are in the stack finally
+      if (oi.length == of.length) return;
+
+      const {_x, _y, width, height} = $("#linear-data-structure").viewBox.baseVal;
+      let n = vertices.length;
+      let y0 = height - 1.5 * VERTEX_RADIUS;
+      let x0 = width / 2;
+
+      // 1. gen x,y-posInitial with oi
+      let dy = 2.5 * VERTEX_RADIUS;
+      if (oi.length > Math.floor(height/dy)) {
+        dy = (height - 2 * 1.5 * VERTEX_RADIUS) / (oi.length-1);
+      }
+
+      let xposi = {}, yposi = {};
+      for (let i = 0; i < oi.length; i++) {
+        xposi[oi[i]] = x0;
+        yposi[oi[i]] = y0 - dy * i;
+      }
+
+      for (v of vertices) {
+        if (xposi[v.id] || yposi[v.id]) continue;
+        xposi[v.id] = x0;
+        yposi[v.id] = - VERTEX_RADIUS * 2.5;
+      }
+
+      // 2. gen x,y-posFinal with of
+      dy = 2.5 * VERTEX_RADIUS;
+      if (of.length > Math.floor(height/dy)) {
+        dy = (height - 2 * 1.5 * VERTEX_RADIUS) / (of.length-1);
+      }
+
+      let xposf = {}, yposf = {};
+      for (let i = 0; i < of.length; i++) {
+        xposf[of[i]] = x0;
+        yposf[of[i]] = y0 - dy * i;
+      }
+
+      for (v of vertices) {
+        if (xposf[v.id] || yposf[v.id]) continue;
+        xposf[v.id] = x0;
+        yposf[v.id] = - VERTEX_RADIUS * 2.5;
+      }
+
+      // 3. interpolate
+      for (vertex of vertices) {
+        let v = svgOLVertices[vertex.id];
+        if (!v) return;
+
+        let m = (yposf[v.id] - yposi[v.id])/100; // animation.progress.max = 100, presumably
+        if (m == 0) continue;
+        if (m < 0) m = (height + VERTEX_RADIUS * 2.5 - yposi[v.id])/100;
+        let y = Math.min(Math.pow(animation.progress+1, 1.2), 100) * m + yposi[v.id];
+        let x = x0;
+
+        /* location changes */
+        let body = getVertexBody(v);
+        body.setAttributeNS(null, 'cx', x);
+        body.setAttributeNS(null, 'cy', y);
+
+        let label = getVertexLabel(v);
+        label.setAttributeNS(null, 'x', x);
+        label.setAttributeNS(null, 'y', y);
+      }
+    };
+
     animation.add({
         fill: targetObj.fill,
         stroke: targetObj.stroke,
         stroke_width: targetObj.stroke_width,
         update: function () {
-          let updateSvg = (svgObj) => {
-            let body = getVertexBody(svgObj);
-            body.setAttributeNS(null, 'fill', initialObj.fill);
-            body.setAttributeNS(null, 'stroke', initialObj.stroke);
-            body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
-
-            let dist = getVertexDist(svgObj);
-            if (dist) {
-              let d = animation.progress < 40 ? initialObj.dist : targetObj.dist;
-              dist.firstChild.textContent = d == inf ? "∞" : targetSvg.id == SSSP_SOURCE ? "Src:"+d : d;
-            }
-          }
-
-          updateSvg(targetSvg);
-          if (!oi || !of) return;
-
-          let olv = svgOLVertices[targetSvg.id];
-          updateSvg(olv);
-
-          let n = vertices.length;
-
-          let xposidx = {};
-          for (let i = 0; i < n; i++) xposidx[of[i]] = i;
-
-          for (let i = 0; i < n; i++) {
-            let v = svgOLVertices[oi[i]];
-
-            let xi = xpos[i];
-            let xf = xpos[xposidx[oi[i]]];
-            let m = (xf-xi)/100; // animation.progress.max = 100, presumably
-            let x = Math.min(Math.pow(animation.progress+1, 1.2), 100) * m + xi;
-            let y = ypos[0];
-
-            /* location changes */
-            let body = getVertexBody(v);
-            body.setAttributeNS(null, 'cx', x);
-            body.setAttributeNS(null, 'cy', y);
-
-            let label = getVertexLabel(v);
-            label.setAttributeNS(null, 'x', x);
-            label.setAttributeNS(null, 'y', y);
-
-            let dist = getVertexDist(v);
-            dist.setAttributeNS(null, 'x', x);
-            dist.setAttributeNS(null, 'y', y + VERTEX_DIST_Y_OFFSET);
-          }
+          if (algo == "DFS") dfsUpdateFunction();
+          else if (algo == "BFS") bfsUpdateFunction();
+          else dijkstrasUpdateFunction();
         }
       });
   }
@@ -154,86 +324,86 @@ let generateEdgeAnime = (targetSvg, initialObj, targetObjs, dur) => {
 }
 
 // normal to red
-let addVertexAnimation1 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur, of, oi));
+let addVertexAnimation1 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // red to green
-let addVertexAnimation2 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_3(Di)], dur, of, oi));
+let addVertexAnimation2 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_3(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // red to red
-let addVertexAnimation3 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_3(Di)], dur, of, oi));
+let addVertexAnimation3 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_3(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_3(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_3(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // normal to green
-let addVertexAnimation4 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_1(Di)], dur, of, oi));
+let addVertexAnimation4 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_4(Df), VERTEX_OBJ_5(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_5(Df), [VERTEX_OBJ_4(Di), VERTEX_OBJ_1(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // normal -> blue + no fill
-let addVertexAnimation5 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur, of, oi));
+let addVertexAnimation5 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // blue + no fill -> blue + fill
-let addVertexAnimation6 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur, of, oi));
+let addVertexAnimation6 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // normal -> red + fill
-let addVertexAnimation7 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur, of, oi));
+let addVertexAnimation7 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_1(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // blue + no fill -> blue + no fill (for when relaxing a relaxed vertex)
-let addVertexAnimation8 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur, of, oi));
+let addVertexAnimation8 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_7(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_7(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_7(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // normal -> blue + fill
-let addVertexAnimation9 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur, of, oi));
+let addVertexAnimation9 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_1(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_1(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // blue + fill -> blue + fill
-let addVertexAnimation10 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_8(Di)], dur, of, oi));
+let addVertexAnimation10 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_8(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // red + fill -> blue + fill
-let addVertexAnimation11 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_9(Di)], dur, of, oi));
+let addVertexAnimation11 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_6(Df), VERTEX_OBJ_8(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_8(Df), [VERTEX_OBJ_6(Di), VERTEX_OBJ_9(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 
 // red + fill -> red + fill
-let addVertexAnimation12 = (targetSvg, dur, Di, Df, lines, oi, of) => {
-  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur, oi, of));
-  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_9(Di)], dur, of, oi));
+let addVertexAnimation12 = (targetSvg, dur, Di, Df, lines, oi, of, type) => {
+  seqForward.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Di), [VERTEX_OBJ_2(Df), VERTEX_OBJ_9(Df)], dur, oi, of, type));
+  seqReverse.push(generateVertexAnime(targetSvg, VERTEX_OBJ_9(Df), [VERTEX_OBJ_2(Di), VERTEX_OBJ_9(Di)], dur, of, oi, type));
   seqLine.push(lines);
 }
 

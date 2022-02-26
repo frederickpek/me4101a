@@ -21,6 +21,50 @@ let resetTraversal = () => {
   svgOLVertices = {};
 };
 
+let addStackVertices = () => {
+  const {_x, _y, width, height} = $("#linear-data-structure").viewBox.baseVal;
+  let olVertices = document.createElementNS(SVG_URI, 'g');
+  olVertices.setAttributeNS(null, 'class', "ol-vertices");
+
+  let x0 = width / 2;
+  let y0 = - VERTEX_RADIUS * 2.5;
+
+  for (v of vertices) {
+    let group = document.createElementNS(SVG_URI, 'g');
+    group.setAttributeNS(null, 'class', "vertex");  // consider changing to style differently
+    group.setAttributeNS(null, 'id', v.id);
+    
+    let body = document.createElementNS(SVG_URI, 'circle');
+    body.setAttributeNS(null, 'class', "body");
+    body.setAttributeNS(null, 'cx', x0);
+    body.setAttributeNS(null, 'cy', y0);
+    body.setAttributeNS(null, 'r', VERTEX_RADIUS);
+    body.setAttributeNS(null, 'fill', WHITE);
+    body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
+    body.setAttributeNS(null, 'stroke', BLACK);
+
+    let label = document.createElementNS(SVG_URI, 'text');
+    label.setAttributeNS(null, 'class', "label");
+    label.setAttributeNS(null, 'x', x0);
+    label.setAttributeNS(null, 'y', y0);
+    let text = document.createTextNode(v.val);
+    label.appendChild(text);
+
+    group.appendChild(body);
+    group.appendChild(label);
+
+    olVertices.appendChild(group);
+
+    svgOLVertices[v.id] = group;
+  }
+
+  $("#linear-data-structure").appendChild(olVertices);
+};
+
+let addQueueVertices = () => {
+  addStackVertices();
+};
+
 let dfs = () => {
   resetTraversal();
   genDfsPseudocode();
@@ -58,10 +102,13 @@ let dfs = () => {
 
   let faded = {};
 
+  let stack = [];
   let DFS = (u, p) => {
     vis[u] = true;
-    let l = p == -1 ? [0,1] : [0,1,4]; 
-    addVertexAnimation1(vertex[u], 300, null, null, l); // N->R
+    let l = p == -1 ? [0,1] : [0,1,4];
+    let initial = copyList(stack);
+    stack.push(u);
+    addVertexAnimation1(vertex[u], 300, null, null, l, initial, copyList(stack), "DFS"); // N->R
     for (let node of vertices) {
       let v = node.id;
       if (E[u][v] == null) continue;
@@ -69,15 +116,19 @@ let dfs = () => {
         addEdgeAnimation1(edge[E[u][v].id], 300, [2]); // N->R
         DFS(v, u);
         addEdgeAnimation3(edge[E[u][v].id], 300, [5]); // R->G
-        addVertexAnimation3(vertex[u], 300, null, null, [5]); // R->R
+        addVertexAnimation3(vertex[u], 300, null, null, [5], copyList(stack), copyList(stack), "DFS"); // R->R
       } else if (v!=p && !faded[E[u][v].id]) {
         addEdgeAnimation1(edge[E[u][v].id], 300, [2]); // N->R
         addEdgeAnimation12(edge[E[u][v].id], 300, [3]); // R->F
         faded[E[u][v].id] = true;
       }
     }
-    addVertexAnimation2(vertex[u], 300, null, null, [6]); // R->G
+    initial = copyList(stack);
+    stack.pop();
+    addVertexAnimation2(vertex[u], 300, null, null, [6], initial, copyList(stack), "DFS"); // R->G
   };
+
+  addStackVertices();
 
   seqReverse.push(null);
   DFS(S, -1);
@@ -129,14 +180,16 @@ let bfs = () => {
   let BFS = (source) => {
     let selectedE = {};
     vis[source] = true;
+    let Q = [source];
     let queue = [source];
-    addVertexAnimation1(vertex[source], 300, null, null, [0,1,2]); // N->R
+    addVertexAnimation1(vertex[source], 300, null, null, [0,1,2], [], copyList(Q), "BFS"); // N->R
 
     while (queue.length) {
       let q = [];
       while (queue.length) {
+        let initial = copyList(Q); Q.shift();
         let u = queue.shift();
-        addVertexAnimation2(vertex[u], 300, null, null, [4,5]); // R->G
+        addVertexAnimation2(vertex[u], 300, null, null, [4,5], initial, copyList(Q), "BFS"); // R->G
         for (let node of vertices) {
           let v = node.id;
           if (!E[u][v]) continue;
@@ -148,15 +201,18 @@ let bfs = () => {
             continue;
           } else if (vis[v]) continue;
           q.push(v);
+          initial = copyList(Q); Q.push(v);
           vis[v] = true;
           selectedE[E[u][v].id] = true;
           addEdgeAnimation4(edge[E[u][v].id], 300, [6]); // N->G
-          addVertexAnimation1(vertex[v], 300, null, null, [7,8,9]); // N->R
+          addVertexAnimation1(vertex[v], 300, null, null, [7,8,9], initial, copyList(Q), "BFS"); // N->R
         }
       }
       queue = q;
     }
   };
+
+  addQueueVertices();
 
   seqReverse.push(null);
   BFS(S);
@@ -194,21 +250,26 @@ let addDistances = () => {
 let xpos = [], ypos = [];
 let svgOLVertices = {};
 let addOrderedListVertices = () => {
+  const {_x, _y, width, height} = $("#linear-data-structure").viewBox.baseVal;
+
   let olVertices = document.createElementNS(SVG_URI, 'g');
   olVertices.setAttributeNS(null, 'class', "ol-vertices");
 
   /* schema for positioning vertices */
   let n = vertices.length;
-  let y0 = 1.5 * VERTEX_RADIUS;
+  let y0 = height - 1.5 * VERTEX_RADIUS;
   let x0 = 1.5 * VERTEX_RADIUS;
 
   /* forgive me */
-  let dx = n < 12 ? (600-3*VERTEX_RADIUS)/10 : (600-3*VERTEX_RADIUS)/(n-1);
+  let dx = 2.5*VERTEX_RADIUS;
+  if (n > Math.floor(height/dx)) {
+    dx = (height - 2 * 1.5 * VERTEX_RADIUS) / (n-1);
+  }
 
   xpos = [], ypos = [];
   for (let i = 0; i < n; i++) {
-    xpos.push(x0 + dx * i);
-    ypos.push(y0);
+    xpos.push(x0);
+    ypos.push(y0 - dx * i);
   }
 
   svgOlVertices = {};
@@ -221,7 +282,7 @@ let addOrderedListVertices = () => {
     let body = document.createElementNS(SVG_URI, 'circle');
     body.setAttributeNS(null, 'class', "body");
     body.setAttributeNS(null, 'cx', xpos[i]);
-    body.setAttributeNS(null, 'cy', y0);
+    body.setAttributeNS(null, 'cy', ypos[i]);
     body.setAttributeNS(null, 'r', VERTEX_RADIUS);
     body.setAttributeNS(null, 'fill', WHITE);
     body.setAttributeNS(null, 'stroke-width', STROKE_WIDTH_1);
@@ -230,14 +291,14 @@ let addOrderedListVertices = () => {
     let label = document.createElementNS(SVG_URI, 'text');
     label.setAttributeNS(null, 'class', "label");
     label.setAttributeNS(null, 'x', xpos[i]);
-    label.setAttributeNS(null, 'y', y0);
+    label.setAttributeNS(null, 'y', ypos[i]);
     let text = document.createTextNode(v.val);
     label.appendChild(text);
 
     let dist = document.createElementNS(SVG_URI, 'text');
     dist.setAttributeNS(null, 'class', 'dist');
-    dist.setAttributeNS(null, 'x', xpos[i]);
-    dist.setAttributeNS(null, 'y', y0 + VERTEX_DIST_Y_OFFSET);
+    dist.setAttributeNS(null, 'x', xpos[i] + VERTEX_DIST_X_OFFSET);
+    dist.setAttributeNS(null, 'y', ypos[i]);
     dist.setAttributeNS(null, 'fill', RED);
     let dtext = document.createTextNode("∞");
     dist.appendChild(dtext);
@@ -251,7 +312,8 @@ let addOrderedListVertices = () => {
     svgOLVertices[v.id] = group;
   }
 
-  svg.appendChild(olVertices);
+  // svg.appendChild(olVertices);
+  $("#linear-data-structure").appendChild(olVertices);
 };
 
 /*

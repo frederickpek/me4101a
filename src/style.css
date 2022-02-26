@@ -6,7 +6,7 @@ body {
   background-color: #FFFCF4;
 }
 
-#viewbox {
+#viewbox, #linear-data-structure {
   background: #f0f0f0;
   outline: 2px solid black;
   /*

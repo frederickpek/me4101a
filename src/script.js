@@ -1,5 +1,6 @@
 let VERTEX_RADIUS = 14;
-let VERTEX_DIST_Y_OFFSET = VERTEX_RADIUS + 6;
+let VERTEX_DIST_Y_OFFSET = VERTEX_RADIUS * 1.5;
+let VERTEX_DIST_X_OFFSET = VERTEX_RADIUS * 3;
 let SVG_URI = "http://www.w3.org/2000/svg";
 
 let vertices = [];
