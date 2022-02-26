@@ -272,9 +272,23 @@ let copyList = (list) => {
   return ret;
 };
 
+let hasNegativeEdgeWeights = () => {
+  for (edge of edges) {
+    if (edge.edgeWeight < 0) return true;
+  }
+  return false;
+};
+
 let SSSP_SOURCE = -1;
 let dijkstra = () => {
   resetTraversal();
+
+  if (hasNegativeEdgeWeights()) {
+    alert("This implementation of Dijkstra's does not support -ve edge weights.\n"
+      + "Please edit all edge weights to be non-negative values by clicking on them!");
+    return;
+  }
+
   genDijkstrasPseudocode();
 
   if (!isShowingEdgeWeights()) {
