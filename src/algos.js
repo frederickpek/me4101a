@@ -651,8 +651,16 @@ let genBellmanFordPseudocode = () => {
       + "<div class='code line-10'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D[v] = D[u] + edge(u, v)</div>"
       + "<div class='code line-11'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else, continue</div>"
       + "<div class='code line-12'>&nbsp;</div>"
-      + "<div class='code line-13'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if no relaxations, break</div>"
+      + "<div class='code line-13'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if no relaxations, terminate algorithm</div>"
       + "<div class='code line-14'>&nbsp;</div>"
+
+      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;// check for -ve weight cycles</div>"
+      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;for each u in V:</div>"
+      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for each neighbour v of u:</div>"
+      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if D[u] + edge(u, v) < D[v]:</div>"
+      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-ve weight cycle exists</div>"
+      + "<div class='code line-x'>&nbsp;</div>"
+
       + "<div class='code line-15'>Finished</div>"
   $('.left-panel').appendChild(fs);
 };
