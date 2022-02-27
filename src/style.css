@@ -17,6 +17,11 @@ body {
   */
 }
 
+#linear-data-structure.inactive,
+#lds-title.inactive {
+  opacity: 40%;
+}
+
 .label {
   font: bold 14px Courier New;
   text-anchor: middle;
@@ -199,6 +204,10 @@ fieldset {
 
 .active-line {
   background-color: #6BE796;
+}
+
+.active-line-red {
+  background-color: #FF4343;
 }
 
 .code {

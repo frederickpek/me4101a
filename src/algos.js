@@ -65,12 +65,28 @@ let addQueueVertices = () => {
   addStackVertices();
 };
 
-let dfs = () => {
-  resetTraversal();
-  genDfsPseudocode();
+let isValidSource = (S) => {
+  if (vertices.length == 0) {
+    alert("Try adding some vertices and edges!");
+    return false;
+  }
 
+  for (vertex of vertices) {
+    if (vertex.id == S) return true;
+  }
+
+  alert("Selected source vertex is invalid. Try another!");
+  return false;
+};
+
+let dfs = () => {
   let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
+  
+  resetTraversal();
+  if (!isValidSource(S)) return;
+  genDfsPseudocode();
+  ldsActive("Call Stack");
 
   let E = {};
   for (let v of vertices) {
@@ -141,11 +157,13 @@ let dfs = () => {
 };
 
 let bfs = () => {
-  resetTraversal();
-  genBfsPseudocode();
-
   let S = parseInt(document.getElementById("quantity-7").value);
   let n = vertices.length;
+
+  resetTraversal();
+  if (!isValidSource(S)) return;
+  genBfsPseudocode();
+  ldsActive("Queue");
 
   let E = {};
   for (let v of vertices) {
@@ -344,6 +362,9 @@ let hasNegativeEdgeWeights = () => {
 let SSSP_SOURCE = -1;
 let dijkstra = () => {
   resetTraversal();
+  let S = parseInt(document.getElementById("quantity-8").value);
+  let n = vertices.length;
+  if (!isValidSource(S)) return;
 
   if (hasNegativeEdgeWeights()) {
     alert("This implementation of Dijkstra's does not support -ve edge weights.\n"
@@ -352,14 +373,12 @@ let dijkstra = () => {
   }
 
   genDijkstrasPseudocode();
+  ldsActive("Ordered List");
 
   if (!isShowingEdgeWeights()) {
     $('.edgeweight-switch').checked = true;
     showEdgeWeights();
   }
-
-  let S = parseInt(document.getElementById("quantity-8").value);
-  let n = vertices.length;
 
   let E = {};
   for (let v of vertices) {
@@ -477,16 +496,17 @@ let dijkstra = () => {
 };
 
 let bellmanford = () => {
+  let S = parseInt(document.getElementById("quantity-9").value);
+  let n = vertices.length;
+  
   resetTraversal();
+  if (!isValidSource(S)) return;
   genBellmanFordPseudocode();
 
   if (!isShowingEdgeWeights()) {
     $('.edgeweight-switch').checked = true;
     showEdgeWeights();
   }
-
-  let S = parseInt(document.getElementById("quantity-9").value);
-  let n = vertices.length;
 
   let E = {};
   for (let v of vertices) {
@@ -628,14 +648,115 @@ let bellmanford = () => {
         break;
       }
     }
+
+    // check for -ve edge weights
+    addDummyAnimation(300, [6+10]);
+    let relaxed = false;
+    for (let node of vertices) {
+      let u = node.id;
+      let hasNeighbours = false;
+      for (let node2 of vertices) {
+        let v = node2.id;
+        if (!E[u][v]) continue; hasNeighbours = true;
+
+        if (D[u] + E[u][v].edgeWeight < D[v]) {
+          relaxed = true;
+
+          // 1. light u to blue, u will always be blue! blue+F -> blue+F
+          addVertexAnimation10(vertex[u], 300, D[u], D[u], [7+10]);
+
+          // 2. light edge.
+          if (edgeParent[v] && u != p[v]) {
+            if (!faded[E[u][v].id]) {
+              addDoubleEdgeAnimation1(edge[E[u][v].id], edge[edgeParent[v].id], 300, [8+10]); // N->B, B->F
+              faded[edgeParent[v].id] = true;
+            } else {
+              addDoubleEdgeAnimation2(edge[E[u][v].id], edge[edgeParent[v].id], 300, [8+10]); // F->B, B->F
+              faded[E[u][v].id] = false;
+              faded[edgeParent[v].id] = true;
+            }
+          } else if (u == p[v]) {
+            addEdgeAnimation11(edge[E[u][v].id], 300, [8+10]); // B->B->B
+          } else {
+            if (!faded[E[u][v].id]) addEdgeAnimation5(edge[E[u][v].id], 300, [8+10]); // N->B
+            else {
+              addEdgeAnimation10(edge[E[u][v].id], 300, [8+10]); // F->B
+              faded[E[u][v].id]  = false;
+            }
+          }
+
+          let dv = D[u] + E[u][v].edgeWeight;
+
+          // 3. light v to blue
+          if (red[v]) {
+            addVertexAnimation11(vertex[v], 300, D[v], dv, [9+10]); // R->B
+            red[v] = false;
+          } else if (D[v] == inf) addVertexAnimation9(vertex[v], 300, D[v], dv, [9+10]); // N->B
+          else addVertexAnimation10(vertex[v], 300, D[v], dv, [9+10]); // B->B
+
+          D[v] = dv;
+          p[v] = u;
+          edgeParent[v] = E[u][v];
+        
+        } else if (v != p[u]) { // fade edge(u,v), Q: {u}? {uv}transition? {v}ignore
+
+          // 1. light u, N->R or col(u)->col(u)
+          if (D[u] == inf && !red[u]) {
+            addVertexAnimation7(vertex[u], 300, D[u], D[u], [7+10]);
+            red[u] = true;
+          } else if (red[u]) addVertexAnimation12(vertex[u], 300, D[u], D[u], [7+10]); // R->R
+          else addVertexAnimation10(vertex[u], 300, D[u], D[u], [7+10]); // B->B
+
+          // 2. fade edge, if not highlighted
+          if (faded[E[u][v].id]) {
+            if (red[u]) {
+              addEdgeAnimation14(edge[E[u][v].id], 300, [8+10]); // F->R
+              addEdgeAnimation12(edge[E[u][v].id], 300, [11+10]); // R->F
+            } else {
+              addEdgeAnimation10(edge[E[u][v].id], 300, [8+10]); // F->B
+              addEdgeAnimation9(edge[E[u][v].id], 300, [11+10]); // B->F
+            }
+          } else if (u != p[v]) { // edge not higlighted
+            if (red[u]) {
+              addEdgeAnimation1(edge[E[u][v].id], 300, [8+10]); // N->R
+              addEdgeAnimation12(edge[E[u][v].id], 300, [11+10]); // R->F
+            } else {
+              addEdgeAnimation5(edge[E[u][v].id], 300, [8+10]);  // N->B
+              addEdgeAnimation9(edge[E[u][v].id], 300, [11+10]); // B->F
+            }
+          } else {
+            addEdgeAnimation11(edge[E[u][v].id], 300, [8+10]); // B->B->B
+            addEdgeAnimation11(edge[E[u][v].id], 300, [11+10]); // B->B->B
+            continue;
+          }
+
+          faded[E[u][v].id] = true;
+        }
+
+        if (relaxed) {
+          // addDummyAnimation(300, [10+10]);
+          return true;
+        }
+      }
+
+      if (!hasNeighbours) {
+        if (!red[u]) {
+          addVertexAnimation7(vertex[u], 300, D[u], D[u], [7+10]); // N->R
+          red[u] = true;
+        } else addVertexAnimation12(vertex[u], 300, D[u], D[u], [7+10]); // R->R
+      }
+    }
+    return false;
   };
 
   addDistances();
 
   seqReverse.push(null);
-  addDummyAnimation(300, [0,1,2])
-  BELLMANFORD(S);
-  addDummyAnimation(300, [15])
+  addDummyAnimation(300, [0,1,2]);
+  let hasNegativeWeightCycle = BELLMANFORD(S);
+  if (hasNegativeWeightCycle) {
+    addDummyAnimation(300, [-(10+10), -15]);
+  } else addDummyAnimation(300, [15]);
   seqForward.push(null);
 
   progress.max = seqForward.length-1;
@@ -730,12 +851,13 @@ let genBellmanFordPseudocode = () => {
       + "<div class='code line-13'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if no relaxations, terminate algorithm</div>"
       + "<div class='code line-14'>&nbsp;</div>"
 
-      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;// check for -ve weight cycles</div>"
-      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;for each u in V:</div>"
-      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for each neighbour v of u:</div>"
-      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if D[u] + edge(u, v) < D[v]:</div>"
-      + "<div class='code line-x'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-ve weight cycle exists</div>"
-      + "<div class='code line-x'>&nbsp;</div>"
+      + "<div class='code line-16'>&nbsp;&nbsp;&nbsp;&nbsp;// check for -ve weight cycles</div>"
+      + "<div class='code line-17'>&nbsp;&nbsp;&nbsp;&nbsp;for each u in V:</div>"
+      + "<div class='code line-18'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for each neighbour v of u:</div>"
+      + "<div class='code line-19'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if D[u] + edge(u, v) < D[v]:</div>"
+      + "<div class='code line-20'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-ve weight cycle exists</div>"
+      + "<div class='code line-21'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else, continue</div>"
+      + "<div class='code line-22'>&nbsp;</div>"
 
       + "<div class='code line-15'>Finished</div>"
   $('.left-panel').appendChild(fs);

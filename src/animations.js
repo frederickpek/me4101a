@@ -69,6 +69,7 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of, algo)
         }
       }
 
+      if (!targetSvg) return;
       updateSvg(targetSvg);
       if (!oi || !of) return;
 
@@ -117,6 +118,7 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of, algo)
         body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
       }
 
+      if (!targetSvg) return;
       updateSvg(targetSvg);
       let olv = svgOLVertices[targetSvg.id];
       if (!olv) return;
@@ -196,6 +198,7 @@ let generateVertexAnime = (targetSvg, initialObj, targetObjs, dur, oi, of, algo)
         body.setAttributeNS(null, 'stroke-width', initialObj.stroke_width);
       }
 
+      if (!targetSvg) return;
       updateSvg(targetSvg);
       let olv = svgOLVertices[targetSvg.id];
       if (!olv) return;
@@ -620,7 +623,20 @@ let addDummyAnimation = (dur, lines) => {
   seqLine.push(lines);
 }
 
+/* this is key to prevent animating deleted objects */
+let pauseAllAnimations = () => {
+  for (animation of seqForward) {
+    if (!animation) continue;
+    animation.pause();
+  }
+  for (animation of seqReverse) {
+    if (!animation) continue;
+    animation.pause();
+  }
+};
+
 let resetAnimations = () => {
+  pauseAllAnimations();
   progress.value = 0;
   progress.max = 0;
   isPlaying = false;
@@ -630,6 +646,7 @@ let resetAnimations = () => {
   seqLine = [];
   pause();
   setButtonOpacities();
+  ldsInActive();
 }
 
 let setButtonOpacities = () => {
@@ -760,8 +777,29 @@ let forwardButton = () => {
 let highlightLines = (lines) => {
   if (!lines) return;
   let codes = document.getElementsByClassName("code");
-  for (let code of codes) code.classList.remove("active-line");
-  for (let line of lines) {
-    $(".line-"+line).classList.add("active-line");
+  for (let code of codes) {
+    code.classList.remove("active-line");
+    code.classList.remove("active-line-red");
   }
+  for (let line of lines) {
+    let isRedLine = line < 0;
+    if (isRedLine) $(".line-"+(-line)).classList.add("active-line-red");
+    else $(".line-"+line).classList.add("active-line");
+  }
+};
+
+let ldsActive = (ldsType) => {
+  let title = $("#lds-title");
+  let lds = $("#linear-data-structure");  
+  title.innerHTML = ldsType;
+  title.classList.remove("inactive");
+  lds.classList.remove("inactive");
+};
+
+let ldsInActive = () => {
+  let title = $("#lds-title");
+  title.innerHTML = "Linear Data Structure";
+
+  title.classList.add("inactive");
+  $("#linear-data-structure").classList.add("inactive");
 };

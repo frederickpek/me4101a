@@ -496,7 +496,7 @@ let edgeWeightUiOnClickEvent = (edgeId) => {
     grayRect.setAttributeNS(null, "x", 0);
     grayRect.setAttributeNS(null, "y", 0);
     grayRect.setAttributeNS(null, "width", 600);
-    grayRect.setAttributeNS(null, "height", 400);
+    grayRect.setAttributeNS(null, "height", 600);
 
     grayRect.addEventListener('click', innerEvent => {
       let f = $('.foreigner');
@@ -755,7 +755,7 @@ let loadSampleGraph1 = () => {
   
   let n = Math.floor(Math.pow(2, H+1) - 1);
   let xmax = 600;
-  let ymax = 400;
+  let ymax = 475;
   
   let h = ymax / (H + 1);
   let yoffset = h / 2;
