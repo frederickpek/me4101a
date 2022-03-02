@@ -1,9 +1,16 @@
 /* * { outline: 1px solid red } */
 
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
   background-color: #FFFCF4;
+  min-height: 100%;
+  display: table;
+  width: 100%;
 }
 
 #viewbox, #linear-data-structure {
@@ -216,4 +223,19 @@ fieldset {
 
 .function-def {
   text-decoration: underline;
+}
+
+main {
+  display: table-row;
+  height: 100%;
+}
+
+footer {
+  padding: 5px 0px 0px 0px;
+  width: 100%;
+  height: 25px;
+  background: #111;
+  font: bold 12px "Courier New";
+  color: #f2f2f2;
+  text-align: center;
 }

@@ -16,8 +16,9 @@
   <a class="link" href="https://frederickpek.github.io/me4101a/src/about.html">About</i></a>
   <a class="link" href="https://frederickpek.github.io/me4101a/src/">Home</i></a>
 </div>
+<div style="padding: 8px"></div>
 
-<br>
+<main>
 
 <div style="width:100%;">
   <div class="left-panel" style="float:left; width:35%; margin-left: 0%;">
@@ -50,29 +51,36 @@
         <input type="number" id="quantity-4" name="quantity" min="1" max="10" value="5" style="width: 30px;" oninput="loadRandomGraph()">
       </div>
     </fieldset>
+
     <fieldset>
       <legend>Algorithms</legend>
-      <div>
-        <button type="button" onclick="dfs()">Run</button>
-        <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
-        <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
-      </div>
-      <div>
-        <button type="button" onclick="bfs()">Run</button>
-        <label for="quantity">Run <i style="background-color:#b0b0ff;">Breadth-First Search</i> on source Vertex, S:</label>
-        <input type="number" id="quantity-7" name="quantity" value="0" style="width: 30px;">
-      </div>
-      <div>
-        <button type="button" onclick="dijkstra()">Run</button>
-        <label for="quantity">Run <i style="background-color:#82E0AA;">Dijkstra's Algorithm</i> on source Vertex, S:</label>
-        <input type="number" id="quantity-8" name="quantity" value="0" style="width: 30px;">
-      </div>
-      <div>
-        <button type="button" onclick="bellmanford()">Run</button>
-        <label for="quantity">Run <i style="background-color:#FDFF7C;">Bellman-Ford Algorithm</i> on source Vertex, S:</label>
-        <input type="number" id="quantity-9" name="quantity" value="0" style="width: 30px;">
-      </div>
-      <br>
+      <fieldset style="margin:0; border:0;">
+        <legend><b>Graph Exploration:</b></legend>
+        <div>
+          <button type="button" onclick="dfs()">Run</button>
+          <label for="quantity">Run <i style="background-color:#ffb0b0;">Depth-First Search</i> on source Vertex, S:</label>
+          <input type="number" id="quantity-5" name="quantity" value="0" style="width: 30px;">
+        </div>
+        <div>
+          <button type="button" onclick="bfs()">Run</button>
+          <label for="quantity">Run <i style="background-color:#b0b0ff;">Breadth-First Search</i> on source Vertex, S:</label>
+          <input type="number" id="quantity-7" name="quantity" value="0" style="width: 30px;">
+        </div>
+      </fieldset>
+
+      <fieldset style="margin:0; border:0;">
+        <legend><b>Single Source Shortest Path:</b></legend>
+        <div>
+          <button type="button" onclick="dijkstra()">Run</button>
+          <label for="quantity">Run <i style="background-color:#82E0AA;">Dijkstra's Algorithm</i> on source Vertex, S:</label>
+          <input type="number" id="quantity-8" name="quantity" value="0" style="width: 30px;">
+        </div>
+        <div>
+          <button type="button" onclick="bellmanford()">Run</button>
+          <label for="quantity">Run <i style="background-color:#FDFF7C;">Bellman-Ford Algorithm</i> on source Vertex, S:</label>
+          <input type="number" id="quantity-9" name="quantity" value="0" style="width: 30px;">
+        </div>
+      </fieldset>
 
       <input class="progress" type="range" value="0" min="0" max="0"></input><br>
       <div style="display: flex; justify-content: center;">
@@ -110,6 +118,13 @@
     </svg>
   </div>
 </div>
+
+</main>
+
+<div style="padding: 8px"></div>
+<footer>
+  © Copyright 2021-2022 Frederick Pek. All Rights Reserved.
+</footer>
 
 <!-- partial -->
 <script src="./anime.min.js"></script>
