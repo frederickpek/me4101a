@@ -2,6 +2,7 @@
 
 html {
   height: 100%;
+  /* font: bold 14px Courier New; */
 }
 
 body {
@@ -11,6 +12,8 @@ body {
   min-height: 100%;
   display: table;
   width: 100%;
+  background-image: url("../images/circuit_tile.png");
+  background-repeat: repeat;
 }
 
 #viewbox, #linear-data-structure {
@@ -84,7 +87,10 @@ body {
 }
 
 .progress {
-  width: 100%;
+  width: 95%;
+  display: block;
+  margin: auto;
+  margin-top: 10px;
 }
 
 .switch {
@@ -218,10 +224,12 @@ fieldset {
 }
 
 .code {
+  padding: 0px 0px 0px 10px; 
   font: bold 16px "Courier New";
 }
 
 .function-def {
+  padding-top: 10px;
   text-decoration: underline;
 }
 
@@ -238,4 +246,87 @@ footer {
   font: bold 12px "Courier New";
   color: #f2f2f2;
   text-align: center;
+}
+
+.left-panel {
+  float: left;
+  width: 35%;
+}
+
+fieldset {
+  padding: 0 0 0px 0;
+  border-color: #337ab7;
+  border: 2px solid #337ab7;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.panel-header {
+  background-color: #337ab7;
+  border-radius: 1 1 0 0;
+  padding: 5px 5px;
+  color: white;
+  font: 16px "Helvetica";
+}
+
+button {
+  height: 100%;
+  margin: 5px;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 100px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: 115%;
+  left: 70%;
+  margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+#dfs {
+  font: bold 13px "Helvetica";
+  background-color: #ffb0b0;
+}
+
+#bfs {
+  font: bold 13px "Helvetica";
+  background-color: #b0b0ff;
+}
+
+#dijkstras {
+  font: bold 13px "Helvetica";
+  background-color: #82E0AA;
+}
+
+#bellmanford {
+  font: bold 13px "Helvetica";
+  background-color: #FDFF7C;
 }

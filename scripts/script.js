@@ -747,6 +747,10 @@ let addSvgEventListeners = () => {
   svg.addEventListener("contextmenu", svgContextMenuListener);
 };
 
+let stopPropagation = () => {
+  event.stopPropagation();
+};
+
 let loadSampleGraph1 = () => {
   save();
   reset();
@@ -775,6 +779,7 @@ let loadSampleGraph1 = () => {
 let loadSampleGraph2 = () => {
   save();
   reset();
+
   let n = parseInt(document.getElementById("quantity-2").value);
   let r = 100 * (1 + n/30);
   let x = 300;
@@ -796,6 +801,7 @@ let loadSampleGraph2 = () => {
 let loadSampleGraph3 = () => {
   save();
   reset();
+
   let r = parseInt(document.getElementById("quantity-3r").value);
   let c = parseInt(document.getElementById("quantity-3c").value);
   let xmin = 100;

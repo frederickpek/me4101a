@@ -157,7 +157,7 @@ let dfs = () => {
 };
 
 let bfs = () => {
-  let S = parseInt(document.getElementById("quantity-7").value);
+  let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
 
   resetTraversal();
@@ -362,7 +362,7 @@ let hasNegativeEdgeWeights = () => {
 let SSSP_SOURCE = -1;
 let dijkstra = () => {
   resetTraversal();
-  let S = parseInt(document.getElementById("quantity-8").value);
+  let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
   if (!isValidSource(S)) return;
 
@@ -496,7 +496,7 @@ let dijkstra = () => {
 };
 
 let bellmanford = () => {
-  let S = parseInt(document.getElementById("quantity-9").value);
+  let S = parseInt(document.getElementById("quantity-5").value);
   let n = vertices.length;
   
   resetTraversal();
@@ -774,7 +774,7 @@ let removePseudocode = () => {
 let genDfsPseudocode = () => {
   let fs = document.createElement("fieldset");
   fs.setAttributeNS(null, 'class', "pseudocode");
-  fs.innerHTML = "<legend>Pseudocode</legend>"
+  fs.innerHTML = "<div class='panel-header'>Pseudocode</div>"
       + "<div class='code line-0 function-def'>DFS(u):</div>"
       + "<div class='code line-1'>&nbsp;&nbsp;&nbsp;&nbsp;mark u as visited</div>"
       + "<div class='code line-2'>&nbsp;&nbsp;&nbsp;&nbsp;for each neighbour v of u:</div>"
@@ -790,7 +790,7 @@ let genDfsPseudocode = () => {
 let genBfsPseudocode = () => {
   let fs = document.createElement("fieldset");
   fs.setAttributeNS(null, 'class', "pseudocode");
-  fs.innerHTML = "<legend>Pseudocode</legend>"
+  fs.innerHTML = "<div class='panel-header'>Pseudocode</div>"
       + "<div class='code line-0 function-def'>BFS(source):</div>"
       + "<div class='code line-1'>&nbsp;&nbsp;&nbsp;&nbsp;queue = [source]</div>"
       + "<div class='code line-2'>&nbsp;&nbsp;&nbsp;&nbsp;mark source as visited</div>"
@@ -810,7 +810,7 @@ let genBfsPseudocode = () => {
 let genDijkstrasPseudocode = () => {
   let fs = document.createElement("fieldset");
   fs.setAttributeNS(null, 'class', "pseudocode");
-  fs.innerHTML = "<legend>Pseudocode</legend>"
+  fs.innerHTML = "<div class='panel-header'>Pseudocode</div>"
       + "<div class='code line-0 function-def'>Dijkstras(source):</div>"
       + "<div class='code line-1'>&nbsp;&nbsp;&nbsp;&nbsp;for each v in V:</div>"
       + "<div class='code line-2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D[v] = inf</div>"
@@ -834,7 +834,7 @@ let genDijkstrasPseudocode = () => {
 let genBellmanFordPseudocode = () => {
   let fs = document.createElement("fieldset");
   fs.setAttributeNS(null, 'class', "pseudocode");
-  fs.innerHTML = "<legend>Pseudocode</legend>"
+  fs.innerHTML = "<div class='panel-header'>Pseudocode</div>"
       + "<div class='code line-0 function-def'>BellmanFord(source):</div>"
       + "<div class='code line-1'>&nbsp;&nbsp;&nbsp;&nbsp;for each v in V:</div>"
       + "<div class='code line-2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D[v] = inf</div>"
