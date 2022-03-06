@@ -650,11 +650,11 @@ let resetAnimations = () => {
 }
 
 let setButtonOpacities = () => {
-  let Fb = document.querySelector('.forward');
-  let Bb = document.querySelector('.reverse');
-  let Sb = document.querySelector('.jump-to-start');
-  let Eb = document.querySelector('.jump-to-end');
-  let Pb = document.querySelector('.play-pause');
+  let Fb = $('#forward');
+  let Bb = $('#reverse');
+  let Sb = $('#jump-to-start');
+  let Eb = $('#jump-to-end');
+  let Pb = $('#play-pause');
 
   Fb.style.opacity = isPlaying || !seqForward.length ? "0.4" : "1.0";
   Bb.style.opacity = isPlaying || !seqForward.length ? "0.4" : "1.0";
@@ -667,7 +667,7 @@ let setButtonOpacities = () => {
 let isPlaying = false;
 let play_pause = () => {
   if (seqForward.length == 0) return;
-  let playPauseButton = document.querySelector('.play-pause');
+  let playPauseButton = $('#play-pause');
   if (isPlaying) {
     pause();
     playPauseButton.innerHTML = "<i class=\"material-icons\">play_arrow</i>";
@@ -798,7 +798,7 @@ let ldsActive = (ldsType) => {
 
 let ldsInActive = () => {
   let title = $("#lds-title");
-  title.innerHTML = "Linear Data Structure";
+  title.innerHTML = "Data Structure";
 
   title.classList.add("inactive");
   $("#linear-data-structure").classList.add("inactive");
